@@ -1,10 +1,9 @@
-import React from 'react'
-import Navbar from './components/navbar'
+import Volunteering from "./pages/Volunteering";
 
 export default function App() {
   return (
     <div>
-      <Navbar />
+      <Volunteering />
     </div>
   )
 }
