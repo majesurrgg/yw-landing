@@ -1,9 +1,17 @@
-import Volunteering from "./pages/Volunteering";
 
-export default function App() {
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from "./router";
+
+function App() {
   return (
-    <div>
-      <Volunteering />
-    </div>
-  )
+    <Router>
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-grow">
+          <AppRoutes />
+        </main>
+      </div>
+    </Router>
+  );
 }
+
+export default App;

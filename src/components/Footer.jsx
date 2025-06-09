@@ -20,9 +20,9 @@ export default function Footer() {
                     <div>
                         <h4 className="font-bold text-lg mb-4">Enlaces rápidos</h4>
                         <ul className="space-y-2">
-                            <li><a href="#" className="text-white/80 hover:text-white">Inicio</a></li>
-                            <li><a href="#" className="text-white/80 hover:text-white">Nosotros</a></li>
-                            <li><a href="#" className="text-white/80 hover:text-white">Voluntariado</a></li>
+                            <li><a href="/" className="text-white/80 hover:text-white">Inicio</a></li>
+                            <li><a href="/about" className="text-white/80 hover:text-white">Nosotros</a></li>
+                            <li><a href="/volunteering" className="text-white/80 hover:text-white">Voluntariado</a></li>
                             <li><a href="#" className="text-white/80 hover:text-white">Donar</a></li>
                         </ul>
                     </div>

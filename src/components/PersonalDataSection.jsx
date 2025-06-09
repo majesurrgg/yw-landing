@@ -81,11 +81,13 @@ export default function PersonalDataSection({ formData, handleInputChange }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <FormSelect
+
+        <FormInput
+          type="date"
           label="Fecha de Nacimiento"
           value={formData.fechaNacimiento}
           onChange={(e) => handleInputChange("fechaNacimiento", e.target.value)}
-          options={birthYearOptions}
+          placeholder="05/05/2000"
         />
 
         <div>

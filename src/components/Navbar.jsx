@@ -17,10 +17,10 @@ export default function Navbar() {
                         <Link to="/" className="hover:text-blue-600">Inicio</Link>
                     </li>
                     <li>
-                        <Link to="/nosotros" className="hover:text-blue-600">Nosotros</Link>
+                        <Link to="/about" className="hover:text-blue-600">Nosotros</Link>
                     </li>
                     <li>
-                        <Link to="/voluntariado" className="hover:text-blue-600">Voluntariado</Link>
+                        <Link to="/volunteering" className="hover:text-blue-600">Voluntariado</Link>
                     </li>
                     <li>
                         <a
