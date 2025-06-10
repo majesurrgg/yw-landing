@@ -2,9 +2,9 @@
 
 const FormSection=({title, children}) => (
     <div className="mb-8">
-        <h3 className="text-x1 font-semibold text-gray-700 mb-4">{title}</h3>
+        <h3 className="text-xl font-semibold text-gray-700 mb-4">{title}</h3>
         {children}
     </div>
 );
 
-export default FormSection
+export default FormSection;
