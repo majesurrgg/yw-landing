@@ -1,6 +1,16 @@
+// AvailabilitySection.jsx
 "use client"
 
-export default function AvailabilitySection({ formData, handleHorarioChange }) {
+import FormSelect from "./FormSelect" // Asegúrate de que este import sea correcto si usas FormSelect
+
+export default function AvailabilitySection({ formData, handleInputChange, handleHorarioChange }) {
+
+    const schoolGradesOptions = [
+        { value: "PRIMARIA34", label: "Primaria (3° y 4° grado)" },
+        { value: "PRIMARIA56", label: "Primaria (5° y 6° grado)" },
+        { value: "SECUNDARIA123", label: "Secundaria (1°, 2° y 3° grado)" }
+    ]
+
     const dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]
     const diasLabels = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
     const periodos = ["manana", "tarde", "noche"]
@@ -10,12 +20,11 @@ export default function AvailabilitySection({ formData, handleHorarioChange }) {
         <section className="mb-8">
             <h3 className="text-lg font-semibold mb-4">Disponibilidad</h3>
             <p className="text-sm text-gray-600 mb-4">
-                ¿Qué horarios tienes disponibles para brindar asesorías? Selecciona los rangos de horarios en los que podrías atender
+                Horarios disponibles para brindar asesorías Selecciona los rangos de horarios en los que podrías atender
                 beneficiarios. No es necesario que tengas disponibilidad durante todo el rango horario completo. Por ejemplo, si
                 solo puedes asesorar de 9:00 a 10:00 am, puedes marcar el rango de 8:00 am a 12:00 pm, ya que posteriormente se
                 coordinará el horario específico con cada beneficiario según tu disponibilidad real dentro de ese bloque
             </p>
-
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
@@ -36,7 +45,8 @@ export default function AvailabilitySection({ formData, handleHorarioChange }) {
                                     <td key={periodo} className="p-2 text-center">
                                         <input
                                             type="checkbox"
-                                            checked={formData.horarios[dia][periodo]}
+                                            // ¡CAMBIA ESTA LÍNEA!
+                                            checked={formData.availability[dia][periodo] || false} // Usa .availability en lugar de .horarios
                                             onChange={() => handleHorarioChange(dia, periodo)}
                                             className="h-4 w-4"
                                         />
@@ -46,6 +56,48 @@ export default function AvailabilitySection({ formData, handleHorarioChange }) {
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            <FormSelect
+                label="¿A qué niveles educativos podrías brindar asesoría?"
+                value={formData.school_grades}
+                onChange={(e) => handleInputChange("school_grades", e.target.value)}
+                options={schoolGradesOptions}
+                required
+            />
+
+            <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">
+                    ¿Tienes un plan de llamadas ilimitadas?
+                </label>
+                <div className="flex space-x-4">
+                    <label className="flex items-center">
+                        <input
+                            type="radio"
+                            name="calling_plan"
+                            checked={formData.calling_plan === true}
+                            onChange={(e) => handleInputChange("calling_plan", true)}
+                            className="mr-2"
+                        />
+                        Sí
+                    </label>
+                    <label className="flex items-center">
+                        <input
+                            type="radio"
+                            name="calling_plan"
+                            checked={formData.calling_plan === false}
+                            onChange={(e) => handleInputChange("calling_plan", false)}
+                            className="mr-2"
+                        />
+                        No
+                    </label>
+                </div>
+            </div>
+
+            <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-4">
+                    Nota: La disponibilidad de horarios es un factor importante para la selección. Por favor, asegúrate de marcar los horarios en los que realmente estarás disponible.
+                </p>
             </div>
         </section>
     )
