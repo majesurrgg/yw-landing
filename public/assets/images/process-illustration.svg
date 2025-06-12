@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background shape -->
+  <rect width="800" height="600" rx="20" fill="#FF3828" opacity="0.1"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="400" cy="300" r="150" stroke="#FF3828" stroke-width="2"/>
+  <circle cx="400" cy="300" r="100" stroke="#FDB82D" stroke-width="2"/>
+  <circle cx="400" cy="300" r="50" stroke="#043ED9" stroke-width="2"/>
+  
+  <!-- Connected dots -->
+  <circle cx="250" cy="200" r="8" fill="#FF3828"/>
+  <circle cx="550" cy="400" r="8" fill="#FDB82D"/>
+  <circle cx="350" cy="450" r="8" fill="#043ED9"/>
+  <circle cx="450" cy="150" r="8" fill="#FF3828"/>
+  
+  <!-- Connecting lines -->
+  <path d="M250 200 L400 300" stroke="#FF3828" stroke-width="2"/>
+  <path d="M400 300 L550 400" stroke="#FDB82D" stroke-width="2"/>
+  <path d="M400 300 L350 450" stroke="#043ED9" stroke-width="2"/>
+  <path d="M400 300 L450 150" stroke="#FF3828" stroke-width="2"/>
+</svg> 
