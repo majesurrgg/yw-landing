@@ -16,23 +16,6 @@ export default function VolunteerAreasSection({
         { value: "ADVISER", label: "Asesor" },
     ]
 
-    const schoolGradesOptions = [
-        { value: "PRIMARIA34", label: "Primaria (3° y 4° grado)" },
-        { value: "PRIMARIA56", label: "Primaria (5° y 6° grado)" },
-        { value: "SECUNDARIA123", label: "Secundaria (1°, 2° y 3° grado)" }
-    ]
-
-    const infoSourceOptions = [
-        { value: "FACEBOOK", label: "Facebook" },
-        { value: "INSTAGRAM", label: "Instagram" },
-        { value: "LINKEDIN", label: "LinkedIn" },
-        { value: "TIKTOK", label: "TikTok" },
-        { value: "EMAIL", label: "Correo electrónico" },
-        { value: "UTEC_NEWSLETTER", label: "Boletín UTEC" },
-        { value: "PROA", label: "Proa" },
-        { value: "PRONABEC", label: "Pronabec" },
-        { value: "REFERRAL", label: "Referencia de un amigo/familia" }
-    ]
 
     // Las opciones para el select de subáreas
     const subAreaOptions = subAreas.map(sub => ({ value: sub.id, label: sub.name }));
@@ -50,6 +33,16 @@ export default function VolunteerAreasSection({
                     options={typeVolunteerOptions}
                     required
                 />
+
+                {areas.length > 0 && ( // Condición para mostrar solo si hay áreas
+                    <FormSelect
+                        label="Área de postulación"
+                        value={formData.selected_subarea_id} // Nuevo campo para la subárea
+                        onChange={(e) => handleInputChange("selected_subarea_id", e.target.value)}
+                        options={subAreaOptions}
+                        required
+                    />
+                )}
 
                 {/* Nuevo select para las subáreas, solo se muestra si hay subáreas cargadas */}
                 {subAreas.length > 0 && ( // Condición para mostrar solo si hay subáreas
@@ -69,83 +62,7 @@ export default function VolunteerAreasSection({
                     </div>
                 )}
 
-
-                <FormSelect
-                    label="Grados escolares"
-                    value={formData.school_grades}
-                    // Usar handleInputChange aquí
-                    onChange={(e) => handleInputChange("school_grades", e.target.value)}
-                    options={schoolGradesOptions}
-                    required
-                />
             </div>
-
-            <div className="mb-6">
-                <FormSelect
-                    label="¿Cómo te enteraste de nosotros?"
-                    value={formData.how_did_you_find_us}
-                    // Usar handleInputChange aquí
-                    onChange={(e) => handleInputChange("how_did_you_find_us", e.target.value)}
-                    options={infoSourceOptions}
-                    required
-                />
-            </div>
-
-            <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
-                    ¿Tienes experiencia previa en voluntariado?
-                </label>
-                <div className="flex space-x-4">
-                    <label className="flex items-center">
-                        <input
-                            type="radio"
-                            name="experience"
-                            checked={formData.experience === true}
-                            // Usar handleInputChange aquí
-                            onChange={(e) => handleInputChange("experience", true)}
-                            className="mr-2"
-                        />
-                        Sí
-                    </label>
-                    <label className="flex items-center">
-                        <input
-                            type="radio"
-                            name="experience"
-                            checked={formData.experience === false}
-                            // Usar handleInputChange aquí
-                            onChange={(e) => handleInputChange("experience", false)}
-                            className="mr-2"
-                        />
-                        No
-                    </label>
-                </div>
-            </div>
-
-            <div className="mb-6">
-                <FormInput
-                    label="¿Cuál es tu motivación para ser voluntario?"
-                    type="textarea"
-                    value={formData.volunteer_motivation}
-                    // Usar handleInputChange aquí
-                    onChange={(e) => handleInputChange("volunteer_motivation", e.target.value)}
-                    placeholder="Cuéntanos por qué quieres ser parte de nuestro equipo..."
-                    required
-                />
-            </div>
-
-            {formData.type_volunteer === "ADVISER" && (
-                <div className="mb-6">
-                    <FormInput
-                        label="¿Por qué quieres ser asesor?"
-                        type="textarea"
-                        value={formData.why_asesor}
-                        // Usar handleInputChange aquí
-                        onChange={(e) => handleInputChange("why_asesor", e.target.value)}
-                        placeholder="Cuéntanos por qué quieres ser asesor..."
-                        required
-                    />
-                </div>
-            )}
 
             {/* Dynamic questions based on selected area */}
             {areaQuestions.length > 0 && (

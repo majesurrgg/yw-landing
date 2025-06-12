@@ -26,7 +26,7 @@ export default function AvailabilitySection({ formData, handleInputChange, handl
                 coordinará el horario específico con cada beneficiario según tu disponibilidad real dentro de ese bloque
             </p>
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse mb-4">
                     <thead>
                         <tr>
                             <th className="text-left p-2"></th>
@@ -66,7 +66,7 @@ export default function AvailabilitySection({ formData, handleInputChange, handl
                 required
             />
 
-            <div className="mb-6">
+            <div className="mt-6 mb-6">
                 <label className="block text-sm font-medium mb-2">
                     ¿Tienes un plan de llamadas ilimitadas?
                 </label>

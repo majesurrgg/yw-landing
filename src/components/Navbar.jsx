@@ -14,14 +14,14 @@ const Navbar = () => {
         <Link to="/arte-cultura" className="nav-link">Arte y Cultura</Link>
         <Link to="/bienestar" className="nav-link">Bienestar Psicológico</Link> */}
         <Link to="/volunteering" className="nav-link">Voluntariado</Link>
-       
-                        <a
-                            href="/donaciones"
-                            className="bg-yellow-400 text-black px-6 py-2 rounded hover:bg-blue-600 font-semibold transition"
-                        >
-                            Donar
-                        </a>
-                    
+
+        <a
+          href="/donaciones"
+          className="bg-yellow-400 text-black px-6 py-2 rounded hover:bg-blue-600 font-semibold transition"
+        >
+          Donar
+        </a>
+
       </div>
     </nav>
   )

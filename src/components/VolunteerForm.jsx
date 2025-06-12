@@ -81,6 +81,17 @@ export default function VolunteerForm() {
         { value: "TRABAJO", label: "Solo trabajo" },
         { value: "AMBOS", label: "Ambos" },
     ]
+    const infoSourceOptions = [
+        { value: "FACEBOOK", label: "Facebook" },
+        { value: "INSTAGRAM", label: "Instagram" },
+        { value: "LINKEDIN", label: "LinkedIn" },
+        { value: "TIKTOK", label: "TikTok" },
+        { value: "EMAIL", label: "Correo electrónico" },
+        { value: "UTEC_NEWSLETTER", label: "Boletín UTEC" },
+        { value: "PROA", label: "Proa" },
+        { value: "PRONABEC", label: "Pronabec" },
+        { value: "REFERRAL", label: "Referencia de un amigo/familia" }
+    ]
 
     // Carga todas las áreas disponibles al inicio
     useEffect(() => {
@@ -261,6 +272,7 @@ export default function VolunteerForm() {
                         occupationOptions={occupationOptions}
                         quechuaLevelOptions={quechuaLevelOptions}
                         programsUniversityOptions={programsUniversityOptions}
+                        infoSourceOptions={infoSourceOptions}
                     />
 
                     <FormSubmitSection
