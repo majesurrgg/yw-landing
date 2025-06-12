@@ -64,7 +64,7 @@ export default function VolunteerForm() {
 
     return (
 
-        <div className="max-w-6xl mx-auto p-6">
+        <div >
             <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg py-4 p-8">
                 <PersonalDataSection formData={formData} handleInputChange={handleInputChange} />
 
