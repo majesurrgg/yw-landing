@@ -1,66 +1,70 @@
-import axios from 'axios';
-// SERVICIO DE FRONTEND
-const API_URL = 'http://localhost:3000/api';
+// src/services/volunteerService.js (ejemplo)
+
+const API_BASE_URL = "http://localhost:3000/api";
 
 export const volunteerService = {
-
-  async createVolunteer(volunteerData) {
-    try {
-      const formData = new FormData();
-
-      // Add all fields to formData
-      Object.keys(volunteerData).forEach(key => {
-        if (key === 'cv_url' && volunteerData[key] instanceof File) {
-          formData.append('cv', volunteerData[key]);
-        } else {
-          formData.append(key, volunteerData[key]);
-        }
-      });
-
-      const response = await axios.post(`${API_URL}/create`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error.message;
+  // Obtiene todas las áreas (Staff y Asesoría)
+  async getAllAreas() {
+    const response = await fetch(`${API_BASE_URL}/areas`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch all areas");
     }
+    return response.json(); // Esto devolverá { staffAreas: [], asesoryAreas: [] }
   },
 
-  // Obtener Áreas
-  async getVolunteerAreas() {
-    try {
-      const response = await axios.get(`${API_URL}/areas`); // <-- /api/areas (endpoint expuesto en back)
-      return response.data;
-    } catch (error) {
-      console.error('Error loading areas:', error.response ? error.response.data : error.message);
-      throw error.response?.data || error.message;
+  // Obtiene las subáreas para un ID de Área Staff específico
+  async getSubAreasByAreaStaffId(areaStaffId) {
+    const response = await fetch(`${API_BASE_URL}/areas/staff/${areaStaffId}/subareas`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch subareas for staff area ID ${areaStaffId}`);
     }
+    return response.json();
   },
 
-  // Obtener subareas
-  async getSubAreas(areaId) {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/areas/subareas/${areaId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("Error fetching subareas:", error);
-      throw error;
+  // Obtiene las preguntas para un ID de SubÁrea específico
+  async   getQuestionsBySubAreaId(subAreaId) {
+    const response = await fetch(`${API_BASE_URL}/areas/subareas/${subAreaId}/questions`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch questions for subarea ID ${subAreaId}`);
     }
+    return response.json();
   },
-  
-  // Obtener preguntas de cada área
-  async getAreaQuestions(areaId) {
-    try {
-      const response = await axios.get(`<span class="math-inline">\{API\_URL\}/areas/questions/</span>{areaId}`); // <-- /api/areas/questions/:areaId (endpoint expuesto en back)
-      return response.data;
-    } catch (error) {
-      console.error('Error loading area questions:', error.response ? error.response.data : error.message);
-      throw error.response?.data || error.message;
+
+  // obtiene las preguntas para un id de area especifico
+  async getQuestionsByAreaId(AreaId) {
+    const response = await fetch(`${API_BASE_URL}/areas/${AreaId}/questions`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch questions for area ID ${AreaId}`);
     }
-  }
-}; 
+    return response.json();
+  },
+
+  // Si aún usas este método para ciertas preguntas dinámicas (basado en el ID del área Staff)
+  async getAreaQuestions(areaIds) {
+    const idsString = areaIds.join(',');
+    const response = await fetch(`${API_BASE_URL}/areas/questions-by-area-staff-ids?areaIds=${idsString}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch area questions");
+    }
+    return response.json();
+  },
+
+  // ... otros métodos como createVolunteer
+  async createVolunteer(formData) {
+    // Aquí podrías necesitar transformar formData antes de enviarlo,
+    // especialmente las respuestas dinámicas y los archivos.
+    // Asegúrate de que tu backend espera el formato correcto.
+    const response = await fetch(`${API_BASE_URL}/volunteers`, { // Asumiendo un endpoint para crear voluntarios
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // Ajusta si subes archivos (multipart/form-data)
+      },
+      body: JSON.stringify(formData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create volunteer");
+    }
+    return response.json();
+  },
+};

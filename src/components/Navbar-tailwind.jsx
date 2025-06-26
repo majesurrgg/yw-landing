@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function Navbar() {
+export default function NavbarTailwind() {
     return (
         <header className="bg-red-500 text-white">
             <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
@@ -16,11 +16,11 @@ export default function Navbar() {
                     <li>
                         <Link to="/" className="hover:text-blue-600">Inicio</Link>
                     </li>
-                    <li>
+                    {/*<li>
                         <Link to="/about" className="hover:text-blue-600">Nosotros</Link>
-                    </li>
+                    </li>*/}
                     <li>
-                        <Link to="/volunteering" className="hover:text-blue-600">Voluntariado</Link>
+                        <Link to="/volunteerPageInfo" className="hover:text-blue-600">Voluntariado</Link>
                     </li>
                     <li>
                         <a

@@ -45,21 +45,22 @@ export default function VolunteerForm() {
         programs_university: "NINGUNO",
         how_did_you_find_us: "FACEBOOK",
 
-        // Area Selection
-        type_volunteer: "STAFF", // Valor inicial
-        name_postulation_area: "", // Esto DEBERÍA ser el ID del área
-
-        // Dynamic questions responses
-        responses: []
+        // Area Selection & dinamic questions
+        type_volunteer: "", // Valor inicial
+        selectedAreaId: null, // ID del área Staff o Asesoría seleccionada
+        selectedSubAreaId: null, // ID de la subárea seleccionada
+        responses: [] // Respuestas a preguntas dinámicas
     })
 
-    const [areas, setAreas] = useState([])
-    const [subAreas, setSubAreas] = useState([]) // Nuevo estado para las subáreas
+    const [allAreas, setAllAreas] = useState({ staffAreas: [], asesoryAreas: [] }); // Para almacenar TODAS las áreas
+    const [displayAreas, setDisplayAreas] = useState([]); // Las áreas que se mostrarán en el select (filtradas por type_volunteer)
+    const [subAreas, setSubAreas] = useState([]); // Subáreas del área seleccionada
+    const [dynamicQuestions, setDynamicQuestions] = useState([]); // Preguntas de la subárea seleccionada
 
-    const [areaQuestions, setAreaQuestions] = useState([]) // Inicializado correctamente como array
-    const [loading, setLoading] = useState(false)
-    const [submitError, setSubmitError] = useState(null)
+    const [loading, setLoading] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
 
+    // opciones para preguntas, quechua_level, program_university, occupation_opcion, etc
     const quechuaLevelOptions = [
         { value: "NULO", label: "No lo hablo" },
         { value: "BASICO", label: "Nivel básico" },
@@ -93,99 +94,92 @@ export default function VolunteerForm() {
         { value: "REFERRAL", label: "Referencia de un amigo/familia" }
     ]
 
-    // Carga todas las áreas disponibles al inicio
+    // Carga todas las áreas (STAFF y ASESORIAS) disponibles al inicio
     useEffect(() => {
-        loadAreas()
-    }, [])
-
-    // Carga las preguntas cuando el tipo de voluntario cambia
-    useEffect(() => {
-        const fetchAreaQuestions = async () => {
-            const selectedAreaType = formData.type_volunteer;
-            const area = areas.find(a => a.name === selectedAreaType); // Buscar el objeto de área por su nombre
-
-            if (area) {
-                await loadAreaQuestions(area.id);
-            } else {
-                setAreaQuestions([]);
+        const loadAllAreas = async () => {
+            try {
+                const data = await volunteerService.getAllAreas();
+                setAllAreas(data);
+                // Establecer un valor por defecto para type_volunteer y displayAreas
+                if (data.staffAreas.length > 0) {
+                    setFormData(prev => ({ ...prev, type_volunteer: "STAFF" }));
+                    setDisplayAreas(data.staffAreas);
+                } else if (data.asesoryAreas.length > 0) {
+                    setFormData(prev => ({ ...prev, type_volunteer: "ADVISER" }));
+                    setDisplayAreas(data.asesoryAreas);
+                }
+            } catch (error) {
+                console.error("Error cargando todas las áreas:", error);
+                toast.error("Error cargando las áreas principales.");
             }
         };
+        loadAllAreas();
+    }, []);
 
-        if (areas.length > 0) {
-            fetchAreaQuestions();
+
+    // Efecto para filtrar las áreas mostradas cuando cambia type_volunteer
+    useEffect(() => {
+        if (formData.type_volunteer === "STAFF") {
+            setDisplayAreas(allAreas.staffAreas);
+            // Resetear selección de área y subárea al cambiar de tipo
+            setFormData(prev => ({ ...prev, selectedAreaId: null, selectedSubAreaId: null }));
+            setSubAreas([]);
+            setDynamicQuestions([]);
+        } else if (formData.type_volunteer === "ADVISER") {
+            setDisplayAreas(allAreas.asesoryAreas);
+            // Resetear selección de área y subárea al cambiar de tipo
+            setFormData(prev => ({ ...prev, selectedAreaId: null, selectedSubAreaId: null }));
+            setSubAreas([]);
+            setDynamicQuestions([]);
         }
-    }, [formData.type_volunteer, areas]);
+    }, [formData.type_volunteer, allAreas]);
 
+    // Efecto para cargar subáreas cuando se selecciona un selectedAreaId (Área Staff/Asesoría)
     useEffect(() => {
         const fetchSubAreas = async () => {
-            const selectedAreaType = formData.type_volunteer;
-            const area = areas.find(a => a.name === selectedAreaType);
-
-            if (area) {
+            if (formData.selectedAreaId && formData.type_volunteer === "STAFF") {
                 try {
-                    const fetchedSubAreas = await volunteerService.getSubAreas(area.id);
+                    const fetchedSubAreas = await volunteerService.getSubAreasByAreaStaffId(formData.selectedAreaId);
                     setSubAreas(fetchedSubAreas);
-                    // Opcional: Si solo hay una subárea por defecto, selecciónala
-                    // if (fetchedSubAreas.length > 0) {
-                    //     setFormData(prev => ({
-                    //         ...prev,
-                    //         selected_subarea_id: fetchedSubAreas[0].id // Asumiendo que la subárea tiene un 'id'
-                    //     }));
-                    // } else {
-                    //     setFormData(prev => ({ ...prev, selected_subarea_id: "" }));
-                    // }
+                    // Resetear selección de subárea y preguntas al cargar nuevas subáreas
+                    setFormData(prev => ({ ...prev, selectedSubAreaId: null }));
+                    setDynamicQuestions([]);
                 } catch (error) {
                     console.error("Error cargando subáreas:", error);
-                    toast.error("Error cargando las subáreas de voluntariado");
+                    toast.error("Error cargando las subáreas.");
                     setSubAreas([]);
                 }
             } else {
-                setSubAreas([]); // Si no se encuentra un área principal, limpia las subáreas
-                setFormData(prev => ({ ...prev, selected_subarea_id: "" })); // También limpia la selección
+                setSubAreas([]); // Limpiar subáreas si no hay área seleccionada o no es STAFF
+                setFormData(prev => ({ ...prev, selectedSubAreaId: null }));
+                setDynamicQuestions([]);
             }
         };
 
+        fetchSubAreas();
+    }, [formData.selectedAreaId, formData.type_volunteer]); // Depende del área seleccionada y el tipo de voluntario
 
-        // Solo carga las preguntas si las áreas ya están cargadas
-        if (areas.length > 0) { // Solo intenta cargar si las áreas principales ya están disponibles
-            fetchSubAreas();
-        }
-    }, [formData.type_volunteer, areas]); // Depende del tipo de voluntario y de que las áreas estén cargadas
 
-    const loadAreas = async () => {
-        try {
-            const areasData = await volunteerService.getVolunteerAreas()
-            setAreas(areasData)
-            // Optional: Set a default area type if areasData is not empty
-            if (areasData.length > 0) {
-                // Find the ID for "STAFF" or "ADVISER" initially, or just set the first one
-                const defaultStaffArea = areasData.find(a => a.name === "STAFF");
-                if (defaultStaffArea) {
-                    setFormData(prev => ({
-                        ...prev,
-                        /*name_postulation_area: defaultStaffArea.id, // Set the actual ID*/
-                        type_volunteer: "STAFF" // Keep this as the displayed value for the select
-                    }));
+    // Efecto para cargar preguntas cuando se selecciona un selectedSubAreaId
+    useEffect(() => {
+        const fetchDynamicQuestions = async () => {
+            if (formData.selectedSubAreaId) {
+                try {
+                    const questions = await volunteerService.getQuestionsBySubAreaId(formData.selectedSubAreaId);
+                    setDynamicQuestions(questions);
+                } catch (error) {
+                    console.error("Error cargando preguntas dinámicas:", error);
+                    toast.error("Error cargando las preguntas dinámicas.");
+                    setDynamicQuestions([]);
                 }
+            } else {
+                setDynamicQuestions([]); // Limpiar preguntas si no hay subárea seleccionada
             }
-        } catch (error) {
-            console.error("Error loading areas:", error)
-            toast.error("Error cargando las áreas de voluntariado")
-            setAreas([]); // Ensure areas is an empty array on error
-        }
-    }
+        };
 
-    const loadAreaQuestions = async (areaId) => {
-        try {
-            // Tu servicio espera un array de IDs, así que asegúrate de pasar un array
-            const questions = await volunteerService.getAreaQuestions([areaId]);
-            setAreaQuestions(questions);
-        } catch (error) {
-            console.error("Error loading area questions:", error);
-            toast.error("Error cargando las preguntas del área");
-            setAreaQuestions([]); // Asegúrate de que siempre sea un array en caso de error
-        }
-    }
+        fetchDynamicQuestions();
+    }, [formData.selectedSubAreaId]); // Depende de la subárea seleccionada 
+
 
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
@@ -195,16 +189,35 @@ export default function VolunteerForm() {
         setFormData((prev) => ({ ...prev, [field]: file }))
     }
 
-    // Modifica handleAreaChange para que solo actualice el tipo de voluntario en formData.
-    // La carga de preguntas ahora se maneja en el useEffect.
-    /*const handleAreaChange = (field, value) => {
-        setFormData((prev) => ({
+    // Nueva función para manejar el cambio de tipo de voluntario (Staff/Asesor)
+    const handleTypeVolunteerChange = (value) => {
+        setFormData(prev => ({
             ...prev,
-            [field]: value,
-            // Si el campo es 'type_volunteer', también podrías querer resetear las respuestas
-            ...(field === 'type_volunteer' && { responses: [] })
+            type_volunteer: value,
+            selectedAreaId: null, // Resetear área al cambiar el tipo
+            selectedSubAreaId: null, // Resetear subárea
+            responses: [] // Resetear respuestas dinámicas
         }));
-    };*/
+    };
+
+    // Nueva función para manejar el cambio de Área (Staff o Asesoría)
+    const handleAreaSelectChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            selectedAreaId: value, // Guardar el ID del área seleccionada
+            selectedSubAreaId: null, // Resetear subárea si cambia el área
+            responses: [] // Resetear respuestas dinámicas
+        }));
+    };
+
+    // Nueva función para manejar el cambio de SubÁrea
+    const handleSubAreaSelectChange = (value) => {
+        setFormData(prev => ({
+            ...prev,
+            selectedSubAreaId: value, // Guardar el ID de la subárea seleccionada
+            responses: [] // Resetear respuestas dinámicas
+        }));
+    };
 
     const handleQuestionResponse = (questionId, response) => {
         setFormData((prev) => ({
@@ -213,30 +226,32 @@ export default function VolunteerForm() {
                 ...prev.responses.filter(r => r.questionId !== questionId),
                 { questionId, response }
             ]
-        }))
-    }
+        }));
+    };
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setLoading(true)
-        setSubmitError(null)
+        e.preventDefault();
+        setLoading(true);
+        setSubmitError(null);
 
         try {
-            await volunteerService.createVolunteer(formData)
-            toast.success("¡Formulario enviado con éxito!")
+            // Asegúrate de que el backend pueda procesar la estructura de formData
+            // Es posible que necesites transformar los IDs de selectedAreaId y selectedSubAreaId
+            // a la forma que espera tu backend (ej. `areaStaff: { id: selectedAreaId }`)
+            await volunteerService.createVolunteer(formData);
+            toast.success("¡Formulario enviado con éxito!");
             // Reset form or redirect
         } catch (error) {
-            console.error("Error submitting form:", error)
-            setSubmitError(error.message || "Error al enviar el formulario")
-            toast.error(error.message || "Error al enviar el formulario")
+            console.error("Error submitting form:", error);
+            setSubmitError(error.message || "Error al enviar el formulario");
+            toast.error(error.message || "Error al enviar el formulario");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="max-w-6xl">
-
             {submitError && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     {submitError}
@@ -253,10 +268,13 @@ export default function VolunteerForm() {
 
                     <VolunteerAreasSection
                         formData={formData}
-                        areas={areas}
+                        typeVolunteerOptions={[{ value: "STAFF", label: "Voluntario de Staff" }, { value: "ADVISER", label: "Voluntario Asesor" }]}
+                        handleTypeVolunteerChange={handleTypeVolunteerChange} // Nuevo handler
+                        displayAreas={displayAreas} // Las áreas filtradas
+                        handleAreaSelectChange={handleAreaSelectChange} // Nuevo handler para selección de área
                         subAreas={subAreas} // Pasar las subáreas cargadas
-                        handleInputChange={handleInputChange}
-                        areaQuestions={areaQuestions}
+                        handleSubAreaSelectChange={handleSubAreaSelectChange} // Nuevo handler para selección de subárea
+                        dynamicQuestions={dynamicQuestions} // Pasar las preguntas dinámicas
                         handleQuestionResponse={handleQuestionResponse}
                     />
 
@@ -264,7 +282,6 @@ export default function VolunteerForm() {
                         formData={formData}
                         handleInputChange={handleInputChange}
                     />
-
 
                     <MotivationSection
                         formData={formData}
@@ -293,7 +310,6 @@ export default function VolunteerForm() {
                     </div>
                 </form>
             </div>
-
         </div>
     )
 }

@@ -13,8 +13,8 @@ function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/volunteering" element={<Volunteering />} />
-        <Route path='/volunteer-info' element={<VolunteerPageInfo />} />
+        <Route path="/volunteerPageInfo" element={<VolunteerPageInfo />} />
+        <Route path='/volunteering' element={<Volunteering />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
