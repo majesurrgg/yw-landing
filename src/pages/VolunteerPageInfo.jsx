@@ -12,8 +12,15 @@ export default function VolunteerPageInfo() {
     const getData = async () => {
       try {
         const data = await listAreas();
-        setAreaStaff(data.areaStaff.filter((item) => item.isActive));
-        setAreaAsesory(data.areaAsesory.filter((item) => item.isActive));
+
+        // LÍNEA DE DEPURACIÓN CRÍTICA:
+        console.log('DATOS RECIBIDOS DEL BACKEND:', JSON.stringify(data, null, 2));
+
+        // usamos "staffAreas" y "asesoryAreas" para que coincida con la API
+        setAreaStaff(data.staffAreas.filter((item) => item.isActive));
+        setAreaAsesory(data.asesoryAreas.filter((item) => item.isActive));
+        
+
       } catch (error) {
         console.error("Error al cargar áreas:", error);
       } finally {
@@ -30,7 +37,7 @@ export default function VolunteerPageInfo() {
 
   return (
     <div style={{ background: "#f7fafd", minHeight: "100vh" }}>
-      <div style={{width: "100%",height: 350,background: "#b3c6e0",position: "relative",display: "flex",alignItems: "center",overflow: "hidden",}}>
+      <div style={{ width: "100%", height: 350, background: "#b3c6e0", position: "relative", display: "flex", alignItems: "center", overflow: "hidden", }}>
         <img
           src="/assets/volunteer.png"
           alt="Voluntariado"
@@ -41,7 +48,7 @@ export default function VolunteerPageInfo() {
             height: "100%",
           }}
         />
-        <div style={{position: "absolute",bottom: 0,left: "50%",transform: "translateX(-50%)",width: "60rem",maxWidth: "90%",background: "rgba(255, 255, 255, 0.52)",padding: "10px 28px",borderRadius: 8,boxShadow: "0 2px 6px rgba(0,0,0,0.1)",textAlign: "center"}}>
+        <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "60rem", maxWidth: "90%", background: "rgba(255, 255, 255, 0.52)", padding: "10px 28px", borderRadius: 8, boxShadow: "0 2px 6px rgba(0,0,0,0.1)", textAlign: "center" }}>
           <h1 style={{ fontSize: 24, fontWeight: 700, color: "#234", margin: 0 }}>
             Voluntariado
           </h1>

@@ -4,3 +4,7 @@ export const listAreas = async () => {
   const response = await api.get("/areas");
   return response.data;
 };
+
+export const getAreaById = async() => {
+  
+}
