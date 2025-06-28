@@ -16,6 +16,7 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/volunteerPageInfo" element={<VolunteerPageInfo />} />
+        <Route path="/volunteer/booth/:subAreaId" element={<SubAreaDetailPage />} />
         <Route path="/volunteerDetailPage/:areaId" element={<VolunteerDetailPage/>}/>
         <Route path='/volunteering' element={<Volunteering />} />
         <Route path="*" element={<NotFoundPage />} />

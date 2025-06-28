@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function AreaSection({ title, color, bg, areas, loading, emptyMsg }) {
+export default function AreaSection({ title, color, bg, areas, loading, emptyMsg, onAreaClick}) {
   return (
     <section>
       <div style={{
@@ -25,6 +25,7 @@ export default function AreaSection({ title, color, bg, areas, loading, emptyMsg
         ) : areas.length === 0 ? (
           <p>{emptyMsg}</p>
         ) : (
+          // map que renderiza las áreas
           areas.map((area) => (
             <div key={area.id} style={{
               background: bg,
