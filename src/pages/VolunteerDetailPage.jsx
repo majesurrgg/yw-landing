@@ -7,71 +7,113 @@
 // si area.subAreas tiene elementos, mostrar lista de de subáreas
 // si area.subAreas esta vacio, muestra detalles del área misma
 
-import React, { useEffet, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 // importamos de apiService.js
-import { getAreaById } from '../services/areaService';
+import { getSubAreaById } from '../services/areaService';
 
 export default function VolunteerDetailPage() {
-    const { areaId } = useParams(); // 1. Obtenemos el ID de la URL
-    const [area, setArea] = useState(null);
+    // 1. Leer el ID de la SUB-ÁREA de la URL
+    const { subAreaId } = useParams();
+    const [puesto, setPuesto] = useState(null); // 'puesto' es un nombre más descriptivo
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchArea = async () => {
+        // 2. Función para buscar los detalles del puesto (sub-área)
+        const fetchPuestoDetails = async () => {
+            if (!subAreaId) return; // No hacer nada si no hay ID
+
+            setLoading(true);
             try {
-                // 2. llamamos a la API
-                const data = await getAreaById(areaId);
-                setArea(data);
+                // Usamos la función correcta del servicio que llama a GET /api/subareas/:id
+                const data = await getSubAreaById(subAreaId);
+                setPuesto(data);
             } catch (error) {
-                console.error("Error al cargar los detalles del área: ", error);
+                console.error(`Error al cargar la sub-área con ID ${subAreaId}:`, error);
+                setPuesto(null); // Limpiar en caso de error
             } finally {
                 setLoading(false);
             }
         };
-        fetchArea();
-    }, [areaId]); // se ejecuta cada vez que el areaId cambie
+
+        fetchPuestoDetails();
+    }, [subAreaId]); // El efecto se ejecuta si el ID en la URL cambia
 
     if (loading) {
-        return <div>Cargando..</div>;
-    }
-    if (!area) {
-        return <div>Área no encontrada.</div>;
+        return <div className="text-center p-10 text-xl">Cargando...</div>;
     }
 
-    // 4. Lógica de renderizado condicional
-    const hasSubAreas = area.subAreas && area.subAreas.lenght > 0;
+    if (!puesto) {
+        return <div className="text-center p-10 text-xl">Puesto de voluntariado no encontrado.</div>;
+    }
 
+    // Función auxiliar para mostrar las listas de texto de forma bonita
+    const renderListFromString = (text) => {
+        if (!text) return <p className="text-gray-500">No especificado.</p>;
+        // Asumimos que los items en el texto están separados por saltos de línea o un carácter como '*'
+        return (
+            <ul className="space-y-2">
+                {text.split(/[\n*]/).map((line, index) =>
+                    line.trim() && <li key={index} className="flex items-start"><span className="mr-2 mt-1 text-blue-500">&#10003;</span><span>{line.trim()}</span></li>
+                )}
+            </ul>
+        );
+    };
+
+    // 4. Renderizar los detalles del puesto (la sub-área)
     return (
-        <div>
-            <h1>{area.name}</h1>
+        <div className="bg-gray-50 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="p-6 sm:p-8">
+                    <Link to="/volunteerPageInfo" className="text-blue-600 hover:underline mb-6 inline-block">&larr; Volver a todas las oportunidades</Link>
 
-            {hasSubAreas ? (
-                <div>
-                    <h2>Elige un puesto de voluntariado:</h2>
-                    <ul>
-                        {area.subAreas.map(subArea => (
-                            <li key={subArea.id}>
-                                {/* Aqui cada subárea podría ser un link*/}
-                                {subArea.name}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            ) : (
-                <div>
-                    {/* aqui va toda la maquetacion de la imagen 2*/}
-                    {/* usando datos del objeto area*/}
-                    <p><strong>Tiempo de voluntariado:</strong>{area.volunteerTime}</p>
-                    <h3>Funciones:</h3>
-                    <p>{area.functions}</p>
-                    <h3>Conocimientos y Estudios</h3>
-                    <p>{area.knowledgesAndStudies}</p>
-                    <h3>Conocimientos Adicionales</h3>
-                    <p>{area.knowledgeAditionals}</p>
+                    <div className="border-b border-gray-200 pb-4 mb-6">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">{puesto.name}</h1>
+                        <p className="text-md text-gray-600 mt-2">{puesto.description}</p>
+                    </div>
 
+                    <div className="space-y-8">
+                        <DetailSection title="Funciones">
+                            {renderListFromString(puesto.functions)}
+                        </DetailSection>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <DetailSection title="Conocimientos y Estudios">
+                                {renderListFromString(puesto.knowledgeAndStudies)}
+                            </DetailSection>
+                            <DetailSection title="Conocimientos Adicionales">
+                                {renderListFromString(puesto.additionalKnowledge)}
+                            </DetailSection>
+                            <DetailSection title="Habilidades Tecnológicas">
+                                {renderListFromString(puesto.technologicalSkills)}
+                            </DetailSection>
+                            <DetailSection title="Competencias Comunicacionales">
+                                {renderListFromString(puesto.communicationSkills)}
+                            </DetailSection>
+                        </div>
+
+                        <DetailSection title="Experiencia Requerida">
+                            <p className="text-gray-700">{puesto.experience || 'No especificada.'}</p>
+                        </DetailSection>
+                    </div>
+
+                    <div className="mt-10 pt-6 border-t border-gray-200 text-center">
+                        <button className="bg-yellow-500 text-white font-bold py-3 px-12 rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg">
+                            Postular
+                        </button>
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
+
+// Componente auxiliar para unificar estilos de las secciones
+const DetailSection = ({ title, children }) => (
+    <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-3">{title}</h3>
+        <div className="text-gray-700 text-base">
+            {children}
+        </div>
+    </div>
+);

@@ -94,7 +94,7 @@ export default function VolunteerForm() {
         { value: "REFERRAL", label: "Referencia de un amigo/familia" }
     ]
 
-    // Carga todas las áreas (STAFF y ASESORIAS) disponibles al inicio
+    // Carga todas las áreas (STAFF y ASESORIAS) disponibles al inicio (deberia venir predefinido con la area y sub area que escogio el usuario en la page VolunteerPageInfo, VolunteerDetailPage)
     useEffect(() => {
         const loadAllAreas = async () => {
             try {

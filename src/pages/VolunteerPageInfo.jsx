@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { getAreaById, listAreas } from "../services/areaService";
+import { getAreaById, listAreasAsesories, listAreasStaff } from "../services/areaService";
 import AreaSection from "../components/AreaSection";
-import { Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 export default function VolunteerPageInfo() {
   const [areaStaff, setAreaStaff] = useState([]);
@@ -18,14 +18,15 @@ export default function VolunteerPageInfo() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const data = await listAreas();
+        const dataStaff = await listAreasStaff();
+        const dataAsesories = await listAreasAsesories();
+        console.log('Staff: ', dataStaff);
+        console.log('Asesories: ', dataAsesories);
 
-        // LÍNEA DE DEPURACIÓN CRÍTICA:
-        console.log('DATOS RECIBIDOS DEL BACKEND:', JSON.stringify(data, null, 2));
-
-        // usamos "staffAreas" y "asesoryAreas" para que coincida con la API
-        setAreaStaff(data.staffAreas.filter((item) => item.isActive));
-        setAreaAsesory(data.asesoryAreas.filter((item) => item.isActive));
+        // endpoint devuelve { staffAreas: [...]}
+        setAreaStaff(dataStaff.staffAreas.filter((item) => item.isActive));
+        // endpoint devuelve el array directamente, no un objeto que lo contiene
+        setAreaAsesory(dataAsesories.filter((item) => item.isActive));
 
 
       } catch (error) {
@@ -42,6 +43,7 @@ export default function VolunteerPageInfo() {
     asesory: { color: "#444", background: "#f4f7fb" },
   };
 
+  // abre modal
   const handleAreaClick = async (areaId) => {
     setIsModalOpen(true);
     setIsLoadingModal(true);
@@ -57,13 +59,16 @@ export default function VolunteerPageInfo() {
       setIsLoadingModal(false);
     }
   };
+
+
   // componente modal
   const SubAreaModal = ({ area, onClose, isLoading }) => {
     if (!area) return null; // no mostrar nada si no hay área seleccionada
 
     return (
       // Fondo oscuro semi-transparente que cubre toda la pantalla
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+
         {/* Contenedor del modal */}
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
           {/* Cabecera del Modal */}
@@ -88,10 +93,11 @@ export default function VolunteerPageInfo() {
                     <li key={sub.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors">
                       <span className="text-gray-700 font-medium">{sub.name}</span>
                       <Link
-                        to={`/voluntariado/puesto/${sub.id}`}
+                        to={`/volunteerDetailPage/${sub.id}`}
                         className="text-blue-600 hover:text-blue-800 p-2"
                         title="Ver detalles"
                       >
+
                         {/* Usaremos un SVG para el icono del ojo para que se vea bien siempre */}
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -110,7 +116,7 @@ export default function VolunteerPageInfo() {
       </div>
     );
   };
-
+  /** Fin de Modal */
 
   return (
     <div style={{ background: "#f7fafd", minHeight: "100vh" }}>
@@ -181,7 +187,7 @@ export default function VolunteerPageInfo() {
               areas={areaStaff}
               loading={loading}
               emptyMsg="No hay áreas de staff activas."
-              onAreaClick={handleAreaClick} // <-- pasamos la función como propo
+              onAreaClick={handleAreaClick} // <-- pasamos la función como prop
             />
           )}
           {(filter === "all" || filter === "asesory") && (
@@ -192,17 +198,18 @@ export default function VolunteerPageInfo() {
               areas={areaAsesory}
               loading={loading}
               emptyMsg="No hay áreas de asesores activas."
-              onAreaClick={handleAreaClick}
             />
           )}
         </div>
       </main>
+
       {isModalOpen && (
         <SubAreaModal
           area={selectedArea}
           isLoading={isLoadingModal}
           onClose={() => setIsModalOpen(false)} />
       )}
+
     </div>
   );
 }
