@@ -94,6 +94,15 @@ export default function VolunteerForm() {
         { value: "REFERRAL", label: "Referencia de un amigo/familia" }
     ]
 
+    const artAndCultureWorkshops = [
+        { value: "CUENTA_CUENTOS", label: "Cuenta cuentos" },
+        { value: "DIBUJO_PINTURA", label: "Dibujo y Pintura" },
+        { value: "MUSICA", label: "Música" },
+        { value: "ORATORIA", label: "Oratoria" },
+        { value: "TEATRO", label: "Teatro" },
+        { value: "DANZA", label: "Danza" },
+    ]
+
     // Carga todas las áreas (STAFF y ASESORIAS) disponibles al inicio (deberia venir predefinido con la area y sub area que escogio el usuario en la page VolunteerPageInfo, VolunteerDetailPage)
     useEffect(() => {
         const loadAllAreas = async () => {
