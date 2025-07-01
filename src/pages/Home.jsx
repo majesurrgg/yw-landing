@@ -1,16 +1,17 @@
-import { Link } from 'react-router-dom'
+
 import { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { 
-  faCalendarAlt, 
-  faUsers, 
-  faHeart, 
-  faMapMarkerAlt, 
-  faClock 
+import {
+  faCalendarAlt,
+  faUsers,
+  faHeart,
+  faMapMarkerAlt,
+  faClock
 } from '@fortawesome/free-solid-svg-icons'
 import Lottie from 'lottie-react'
 import treeAnimation from '../assets/animations/animacion-arbol.json';
 import '../styles/Home.css'
+
 
 const collageData = [
   { image: '/assets/images/header/1.png', text: 'Transformando vidas a través de la educación' },
@@ -107,7 +108,7 @@ const Home = () => {
         const rect = step.getBoundingClientRect();
         const stepCenter = rect.top + rect.height / 2;
         const distanceFromCenter = Math.abs(containerCenter - stepCenter);
-        
+
         if (distanceFromCenter < window.innerHeight / 3) {
           step.classList.add('active');
         } else {
@@ -255,7 +256,7 @@ const Home = () => {
         <div className="logo-container">
           <img src="/assets/images/logo_color.png" alt="Yachay Wasi Logo" />
         </div>
-        
+
       </header>
 
       <div className="collage-text-bottom">
@@ -273,7 +274,7 @@ const Home = () => {
       <section className="stats-section" ref={statsRef}>
         <div className="wave-top">
           <img src="/assets/animations/wave-top.svg" alt="" />
-          
+
         </div>
         <div className="stats-background">
           <img src="/assets/images/home/fondo-niños.png" alt="Fondo Niños" className="stats-bg-image" />
@@ -320,6 +321,7 @@ const Home = () => {
           <img src="/assets/animations/wave-bottom.svg" alt="" />
         </div>
       </section>
+
       <section className="hero-section">
         <div className="content-grid">
           <div className="video-container fade-in">
@@ -334,7 +336,7 @@ const Home = () => {
           <div className="content-container fade-in">
             <h1>¿Quiénes somos?</h1>
             <p>Somos una asociación civil sin fines de lucro conformada por jóvenes de todo el país, comprometida por la educación y por reducir las brechas de desigualdad en el Perú.</p>
-          
+
           </div>
         </div>
       </section>
@@ -363,7 +365,7 @@ const Home = () => {
             </div>
           </div>
           <div className="process-image">
-            <Lottie 
+            <Lottie
               animationData={treeAnimation}
               loop={true}
               autoplay={true}
@@ -372,6 +374,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+
 
       <section className="achievements-section" ref={achievementsRef}>
         <h2 className="section-title">CONOCE SOBRE NUESTROS LOGROS COMO ORGANIZACIÓN</h2>
@@ -480,10 +484,10 @@ const Home = () => {
             <div className="testimonial-content">
               <h3>Experiencias Transformadoras</h3>
               <p>Descubre el impacto de nuestro programa en la comunidad</p>
-              <a 
-                href="https://www.youtube.com/watch?v=cZjcvYKFzBI" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://www.youtube.com/watch?v=cZjcvYKFzBI"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="arrow-button"
               >
                 <span className="arrow">→</span>
@@ -504,10 +508,10 @@ const Home = () => {
             <div className="testimonial-content">
               <h3>Historias de Éxito</h3>
               <p>Conoce cómo estamos cambiando vidas a través de la educación</p>
-              <a 
-                href="https://www.youtube.com/watch?v=8SFsyt9sFRI" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://www.youtube.com/watch?v=8SFsyt9sFRI"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="arrow-button"
               >
                 <span className="arrow">→</span>
@@ -517,7 +521,7 @@ const Home = () => {
         </div>
       </section>
 
-     
+
     </div>
   )
 }

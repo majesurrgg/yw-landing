@@ -56,7 +56,6 @@
 
 .login-button {
   background-color: var(--color-secondary);
-  color: black;
   padding: 0.5rem 2rem;
   border-radius: 25px;
   font-weight: bold;

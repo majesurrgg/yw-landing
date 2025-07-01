@@ -1,12 +1,12 @@
 import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
+import NavbarTailwind from '../components/Navbar-tailwind';
 import { Outlet } from 'react-router-dom'
 
 // diseños generales 
 export default function MainLayout() {
   return (
     <>
-      <Navbar />
+      <NavbarTailwind />
       <main className="min-h-screen">
         <Outlet />
       </main>
