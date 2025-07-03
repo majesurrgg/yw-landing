@@ -342,7 +342,7 @@ const Home = () => {
                 zIndex: 1
               }}
             >
-              <div className={`collage-inner${flipped[index] ? ' flipped' : ''}`}>
+              <div className={`collage-inner${flipped[index] ? ' flipped' : ''}`}> 
                 <div className="collage-front">
                   <img src={item.image} alt={`Collage ${index + 1}`} />
                 </div>
@@ -462,9 +462,9 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <div className="process-image" style={{ position: 'relative' }}>
+          <div className="process-image" style={{position:'relative'}}>
             {showLottieBtn && (
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',zIndex:2,display:'flex',alignItems:'center',justifyContent:'center'}}>
                 <div className="pulse-circles">
                   <span className="pulse-circle"></span>
                   <span className="pulse-circle"></span>
@@ -512,7 +512,7 @@ const Home = () => {
               loop={false}
               autoplay={false}
               className="tree-animation"
-              style={{ zIndex: 1 }}
+              style={{zIndex: 1}}
             />
           </div>
         </div>
