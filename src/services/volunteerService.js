@@ -46,14 +46,43 @@ export const uploadFileToCloudinary = async (file) => {
 
 
 
-/**
- * Envía la postulación completa al backend.
- * @param {object} applicationData - Los datos del formulario, con el formato del DTO.
- * @returns {Promise<object>}
- */
-export const createApplication = async (applicationData) => {
-    // NOTA: La subida de archivos (CV) requiere un tratamiento especial (multipart/form-data).
-    // Por ahora, este código asume que el `cv_url` ya es un string (una URL).
-    const response = await api.post('/applications', applicationData);
+
+export const createApplication = async (endpoint, applicationData) => {
+    const response = await api.post(endpoint, applicationData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
     return response.data;
 };
+
+
+
+
+/**
+ * Envía la postulación para un voluntario de STAFF.
+ * @param {FormData} staffPayload - El objeto FormData con los datos y el archivo.
+ * @returns {Promise<object>}
+ */
+export const createStaffApplication = async (staffPayload) => {
+  const response = await api.post('/volunteer/staff', staffPayload, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Envía la postulación para un voluntario ASESOR.
+ * @param {FormData} adviserPayload - El objeto FormData con los datos y los archivos.
+ * @returns {Promise<object>}
+ */
+export const createAdviserApplication = async (adviserPayload) => {
+  const response = await api.post('/volunteer/adviser', adviserPayload, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+// ... (Aquí puedes mantener tus otras funciones de servicio si las necesitas en otros lugares)

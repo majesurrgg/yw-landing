@@ -1,11 +1,24 @@
 // src/components/VolunteerForm.jsx
 
 import { useState, useEffect } from "react";
+// Modal simple para mostrar mensaje de postulación enviada
+function SuccessModal({ open, onClose }) {
+    if (!open) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+                <h2 className="text-2xl font-bold mb-4 text-green-600">¡Postulación enviada!</h2>
+                <p className="mb-6">Tu postulación ha sido enviada con éxito. Pronto nos pondremos en contacto contigo.</p>
+                <button onClick={onClose} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Cerrar</button>
+            </div>
+        </div>
+    );
+}
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 
 import { getAreaById, getSubAreaById, getQuestionsBySubAreaId } from "../services/areaService";
-import { createApplication, uploadFileToCloudinary } from "../services/volunteerService";
+import { createStaffApplication, createAdviserApplication } from "../services/volunteerService";
 
 // Importamos los componentes de sección que ya tienes
 import PersonalDataSection from "./PersonalDataSection";
@@ -38,16 +51,20 @@ const StaffMotivationSection = ({ formData, handleInputChange, programsUniversit
             </div>
             <FormSelect label="¿Perteneces a alguno de los siguientes programas/universidades?"
                 name="programs_university"
-                value={formData.programs_university}
+                value={formData.programsUniversity}
                 onChange={(e) => handleInputChange("programs_university", e.target.value)}
                 options={programsUniversityOptions} required />
         </div>
 
-        <FormInput as="textarea" label="¿Cuál es tu motivación para ser voluntario/a con nosotros?" name="volunteer_motivation" value={formData.volunteer_motivation} onChange={(e) => handleInputChange(e.target.name, e.target.value)} placeholder="Cuéntanos por qué quieres ser parte de nuestro equipo..." required />
+        <FormInput as="textarea" label="¿Cuál es tu motivación para ser voluntario/a con nosotros?" name="volunteer_motivation" value={formData.volunteerMotivation} onChange={(e) => handleInputChange(e.target.name, e.target.value)} placeholder="Cuéntanos por qué quieres ser parte de nuestro equipo..." required />
 
-        <FormSelect label="¿Cómo te enteraste de esta oportunidad?" name="how_did_you_find_us" value={formData.how_did_you_find_us} onChange={(e) => handleInputChange("how_did_you_find_us", e.target.value)} options={infoSourceOptions} required />
+        <FormSelect label="¿Cómo te enteraste de esta oportunidad?" name="how_did_you_find_us" value={formData.howDidYouFindUs} onChange={(e) => handleInputChange("how_did_you_find_us", e.target.value)} options={infoSourceOptions} required />
     </div>
 );
+
+
+
+
 
 // --- AÑADE ESTA FUNCIÓN SI NO EXISTE ---
 const handleQuestionFileResponse = (questionId, file) => {
@@ -204,6 +221,7 @@ const DynamicQuestionsSection = ({ questions, formData, handleResponse, handleFi
 // --- El Componente Principal del Formulario ---
 
 export default function VolunteerForm() {
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -238,8 +256,15 @@ export default function VolunteerForm() {
     { value: "REFERRAL", label: "Referencia de un amigo/familia" }];
 
     const [formData, setFormData] = useState({
-        name: "", lastname: "", date_birth: "", phone_number: "", email: "",
-        type_identification: "DNI", num_identification: "", cv_url: null, was_voluntary: false,
+        name: "",
+        lastname: "",
+        date_birth: "",
+        phone_number: "", email: "",
+        type_identification: "DNI",
+        num_identification: "",
+        file: null,
+        video: null,
+        was_voluntary: false,
         type_volunteer: volunteerType || "",
         subAreaId: subAreaId || areaId,
         availability: {
@@ -322,58 +347,103 @@ export default function VolunteerForm() {
     };
 
 
+    // --- LÓGICA DE ENVÍO FINAL Y CORREGIDA ---
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!formData.acceptTerms || !formData.acceptDataPolicy) {
+            toast.error("Debes aceptar los términos y condiciones para continuar.");
+            return;
+        }
+
         setLoading(true);
         setSubmitError(null);
 
-        try {
-            const payload = new FormData();
+        const payload = new FormData();
 
-            // 1. Añadir el archivo del CV con la clave 'cv'
-            if (formData.cv_url && formData.cv_url instanceof File) {
-                payload.append('cv', formData.cv_url);
-            } else {
-                throw new Error("El archivo del CV es obligatorio.");
+        // 1. Añadir el archivo del CV con la clave correcta ('file')
+        if (formData.file instanceof File) {
+            payload.append('file', formData.file);
+        } else {
+            toast.error("El archivo del CV es obligatorio y debe ser PDF.");
+            setLoading(false);
+            return;
+        }
+        // Video (solo asesoría)
+        if (volunteerType === 'asesoria' && formData.video instanceof File) {
+            payload.append('video', formData.video);
+        }
+        // Respuestas (solo asesoría)
+        if (volunteerType === 'asesoria') {
+            payload.append('responses', JSON.stringify(formData.responses));
+        }
+        // 3. Añadir horarios (solo para asesoría)
+        if (volunteerType === 'asesoria') {
+            const schedulesArray = [];
+            for (const day in formData.availability) {
+                for (const period in formData.availability[day]) {
+                    if (formData.availability[day][period]) {
+                        schedulesArray.push({ dayOfWeek: day, period_time: period });
+                    }
+                }
             }
+            payload.append('schedule', JSON.stringify(schedulesArray));
+        }
 
-            // 2. Procesar y añadir respuestas dinámicas
-            const textResponses = [];
+        // 2. Añadir archivos de respuestas (si los hay) para asesores
+        const textResponses = [];
+        if (volunteerType === 'asesoria') {
             formData.responses.forEach(response => {
                 if (response.reply instanceof File) {
-                    payload.append('responseFiles', response.reply);
+                    payload.append('video', response.reply); // El backend espera 'video'
                     textResponses.push({ questionId: response.questionId, reply: '[FILE_PLACEHOLDER]' });
                 } else {
                     textResponses.push(response);
                 }
             });
             payload.append('responses', JSON.stringify(textResponses));
+        }
 
-            // 3. Procesar y añadir horarios
-            const schedulesArray = [];
-            for (const day in formData.availability) {
-                for (const period in formData.availability[day]) {
-                    if (formData.availability[day][period]) {
-                        schedulesArray.push({ day_of_week: day.toUpperCase(), period_time: period });
-                    }
-                }
+        // 4. Mapear y añadir el resto de los campos con los nombres que el backend espera
+        const keyMapping = {
+            name: 'name',
+            lastname: 'lastName',
+            date_birth: 'birthDate',
+            phone_number: 'phoneNumber',
+            type_identification: 'typeIdentification',
+            num_identification: 'numIdentification',
+            was_voluntary: 'wasVoluntary',
+            volunteer_motivation: 'volunteerMotivation',
+            programs_university: 'programsUniversity',
+            how_did_you_find_us: 'howDidYouFindUs',
+            subAreaId: 'idPostulationArea',
+            school_grades: 'schoolGrades',
+            quechua_level: 'quechuaLevel',
+            calling_plan: 'callingPlan',
+            advisoryCapacity: 'advisoryCapacity',
+        };
+
+        const excludedKeys = ['file', 'video', 'availability', 'responses', 'acceptTerms', 'acceptDataPolicy'];
+        for (const key in formData) {
+            if (!excludedKeys.includes(key) && formData[key] !== null) {
+                const backendKey = keyMapping[key] || key;
+                payload.append(backendKey, formData[key]);
             }
-            payload.append('schedules', JSON.stringify(schedulesArray));
+        }
 
-            // 4. Añadir el resto de los campos, asegurando los nombres correctos
-            const excludedKeys = ['cv_url', 'availability', 'responses', 'acceptTerms', 'acceptDataPolicy'];
-            for (const key in formData) {
-                if (!excludedKeys.includes(key)) {
-                    // Usamos 'lastname' sin guion bajo, que es lo que espera el DTO
-                    const correctKey = key === 'last_name' ? 'lastname' : key;
-                    payload.append(correctKey, formData[key]);
-                }
+        // 5. Llamar al endpoint correcto
+        try {
+            if (volunteerType === 'staff') {
+                await createStaffApplication(payload);
+            } else if (volunteerType === 'asesoria') {
+                await createAdviserApplication(payload);
+            } else {
+                throw new Error("Tipo de voluntario no reconocido.");
             }
 
-            await createApplication(payload);
-
-            toast.success("¡Postulación enviada con éxito!");
-            navigate('/thank-you');
+            setShowSuccessModal(true); // Mostrar modal de éxito
+            // toast.success("¡Postulación enviada con éxito!");
+            // navigate('/thank-you');
 
         } catch (error) {
             const errorMsg = error.response?.data?.message || error.message || "Error al enviar el formulario.";
@@ -385,8 +455,7 @@ export default function VolunteerForm() {
     };
 
 
-
-    const totalSteps = volunteerType === 'STAFF' ? 3 : 5;
+    const totalSteps = volunteerType === 'staff' ? 3 : 5;
 
     return (
         <div className="max-w-6xl mx-auto p-4">
@@ -450,6 +519,9 @@ export default function VolunteerForm() {
                 </div>
                 {submitError && <p className="text-red-500 mt-4 text-right">{submitError}</p>}
             </form>
+
+            {/* Modal de éxito */}
+            <SuccessModal open={showSuccessModal} onClose={() => { setShowSuccessModal(false); navigate('/thank-you'); }} />
         </div>
     );
 }

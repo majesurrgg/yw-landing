@@ -7,7 +7,7 @@ export default function NavbarTailwind() {
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center space-x-2">
-                    <img src="/assets/logo.svg" alt="Yachay Wasi Logo" className="h-15 w-auto" />
+                    <img src="/assets/logo.svg" alt="Yachay Wasi Logo" className="h-15 w-auto"/>
                     <span className="text-lg font-semibold">Yachay Wasi</span>
                 </Link>
 
