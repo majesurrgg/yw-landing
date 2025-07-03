@@ -1,23 +1,13 @@
+// PersonalDataSection.jsx
 "use client"
 
 import FormInput from "./FormInput"
 import FormSelect from "./FormSelect"
 
-export default function PersonalDataSection({ formData, handleInputChange }) {
+export default function PersonalDataSection({ formData, handleInputChange, handleFileChange }) {
   const documentOptions = [
-    { value: "DNI o Pasaporte", label: "DNI o Pasaporte" },
     { value: "DNI", label: "DNI" },
-    { value: "Pasaporte", label: "Pasaporte" },
-  ]
-
-  const birthYearOptions = [
-    { value: "", label: "Fecha de Nacimiento" },
-    { value: "1990", label: "1990" },
-    { value: "1991", label: "1991" },
-    { value: "1992", label: "1992" },
-    { value: "1993", label: "1993" },
-    { value: "1994", label: "1994" },
-    { value: "1995", label: "1995" },
+    { value: "PASSPORT", label: "Pasaporte" },
   ]
 
   return (
@@ -26,108 +16,113 @@ export default function PersonalDataSection({ formData, handleInputChange }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <FormInput
-          label="Nombres"
-          value={formData.nombres}
-          onChange={(e) => handleInputChange("nombres", e.target.value)}
+          label="¿Cuáles son tus nombres?"
+          value={formData.name}
+          onChange={(e) => handleInputChange("name", e.target.value)}
           placeholder="John"
+          required
         />
 
         <div>
           <label className="block text-sm font-medium mb-1">Teléfono Móvil</label>
           <div className="flex">
             <select className="px-3 py-2 border border-gray-300 rounded-l-md bg-white">
-              <option>🇵🇪 +051</option>
+              <option>🇵🇪 +51</option>
             </select>
             <input
               type="tel"
-              value={formData.telefono}
-              onChange={(e) => handleInputChange("telefono", e.target.value)}
+              value={formData.phone_number}
+              onChange={(e) => handleInputChange("phone_number", e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Phone number"
+              placeholder="987654321"
+              required
             />
           </div>
         </div>
-
         <FormSelect
-          label="DNI o Pasaporte"
-          value={formData.tipoDocumento}
-          onChange={(e) => handleInputChange("tipoDocumento", e.target.value)}
+          label="Tipo de documento"
+          value={formData.type_identification}
+          onChange={(e) => handleInputChange("type_identification", e.target.value)}
           options={documentOptions}
+          required
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <FormInput
-          label="Apellidos"
-          value={formData.apellidos}
-          onChange={(e) => handleInputChange("apellidos", e.target.value)}
+          label="¿Cuáles son tus apellidos?"
+          value={formData.lastname}
+          onChange={(e) => handleInputChange("last_name", e.target.value)}
           placeholder="Doe"
+          required
         />
-
         <FormInput
           label="Correo electrónico"
           type="email"
           value={formData.email}
           onChange={(e) => handleInputChange("email", e.target.value)}
           placeholder="username@gmail.com"
+          required
         />
-
         <FormInput
-          label="Digita tu número de documento"
-          value={formData.numeroDocumento}
-          onChange={(e) => handleInputChange("numeroDocumento", e.target.value)}
+          label="Número de documento"
+          value={formData.num_identification}
+          onChange={(e) => handleInputChange("num_identification", e.target.value)}
           placeholder="78987605"
+          required
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <FormInput
           type="date"
           label="Fecha de Nacimiento"
-          value={formData.fechaNacimiento}
-          onChange={(e) => handleInputChange("fechaNacimiento", e.target.value)}
-          placeholder="05/05/2000"
+          value={formData.date_birth}
+          onChange={(e) => handleInputChange("date_birth", e.target.value)}
+          required
         />
+        <div >
+          <label className="block text-sm font-medium mb-2">
+            ¿Has participado como voluntari@ en temporadas anteriores?
+          </label>
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="was_voluntary"
+                checked={formData.was_voluntary === true}
+                onChange={(e) => handleInputChange("was_voluntary", true)}
+                className="mr-2"
+              />
+              Sí
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="was_voluntary"
+                checked={formData.was_voluntary === false}
+                onChange={(e) => handleInputChange("was_voluntary", false)}
+                className="mr-2"
+              />
+              No
+            </label>
+          </div>
+        </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Adjuntar Curriculum Vitae(CV):</label>
-          <button
-            type="button"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
-          >
-            <span>Seleccionar archivo</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">
-          ¿Has participado como voluntari@ en temporadas anteriores?
-        </label>
-        <div className="flex space-x-4">
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="haParticipado"
-              value="si"
-              checked={formData.haParticipado === "si"}
-              onChange={(e) => handleInputChange("haParticipado", e.target.value)}
-              className="mr-2"
-            />
-            Sí
-          </label>
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="haParticipado"
-              value="no"
-              checked={formData.haParticipado === "no"}
-              onChange={(e) => handleInputChange("haParticipado", e.target.value)}
-              className="mr-2"
-            />
-            No
-          </label>
+          <label className="block text-sm font-medium mb-1">Curriculum Vitae (CV)</label>
+          <input
+            type="file"
+            onChange={(e) => handleFileChange("cv_url", e.target.files[0])}
+            className="block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-600 file:text-white
+              hover:file:bg-blue-700"
+            accept=".pdf,.doc,.docx"
+            required
+          />
         </div>
       </div>
     </section>

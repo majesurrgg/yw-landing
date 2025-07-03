@@ -7,14 +7,22 @@ import Volunteering from "../pages/Volunteering";
 import VolunteerPageInfo from "../pages/VolunteerPageInfo";
 import NotFoundPage from "../pages/NotFoundPage";
 import MainLayout from "../layouts/MainLayout";
+import VolunteerDetailPage from "../pages/VolunteerDetailPage";
+//import VolunteerDetailPage from "../pagesVolunteerDetailPage";
+
 function AppRoutes() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/volunteering" element={<Volunteering />} />
-        <Route path='/volunteer-info' element={<VolunteerPageInfo />} />
+        <Route path="/volunteerPageInfo" element={<VolunteerPageInfo />} />
+        {/** <Route path="/volunteer/booth/:subAreaId" element={<SubAreaDetailPage />} />
+        <Route path="/volunteerDetailPage/:areaId" element={<VolunteerDetailPage/>}/> */}
+        {/** ruta que espera un parametro dinamico */}
+        <Route path="/volunteerDetailPage/:subAreaId" element={<VolunteerDetailPage />} />
+
+        <Route path='/volunteering' element={<Volunteering />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -1,3 +1,4 @@
+// FormInput.jsx
 export default function FormInput({ label, type = "text", value, onChange, placeholder, className = "" }) {
   return (
     <div className={className}>
