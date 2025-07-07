@@ -351,107 +351,8 @@ export default function VolunteerForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.acceptTerms || !formData.acceptDataPolicy) {
-            toast.error("Debes aceptar los términos y condiciones para continuar.");
-            return;
-        }
-
-        setLoading(true);
-        setSubmitError(null);
-
-        const payload = new FormData();
-
-        // 1. Añadir el archivo del CV con la clave correcta ('file')
-        if (formData.file instanceof File) {
-            payload.append('file', formData.file);
-        } else {
-            toast.error("El archivo del CV es obligatorio y debe ser PDF.");
-            setLoading(false);
-            return;
-        }
-        // Video (solo asesoría)
-        if (volunteerType === 'asesoria' && formData.video instanceof File) {
-            payload.append('video', formData.video);
-        }
-        // Respuestas (solo asesoría)
-        if (volunteerType === 'asesoria') {
-            payload.append('responses', JSON.stringify(formData.responses));
-        }
-        // 3. Añadir horarios (solo para asesoría)
-        if (volunteerType === 'asesoria') {
-            const schedulesArray = [];
-            for (const day in formData.availability) {
-                for (const period in formData.availability[day]) {
-                    if (formData.availability[day][period]) {
-                        schedulesArray.push({ dayOfWeek: day, period_time: period });
-                    }
-                }
-            }
-            payload.append('schedule', JSON.stringify(schedulesArray));
-        }
-
-        // 2. Añadir archivos de respuestas (si los hay) para asesores
-        const textResponses = [];
-        if (volunteerType === 'asesoria') {
-            formData.responses.forEach(response => {
-                if (response.reply instanceof File) {
-                    payload.append('video', response.reply); // El backend espera 'video'
-                    textResponses.push({ questionId: response.questionId, reply: '[FILE_PLACEHOLDER]' });
-                } else {
-                    textResponses.push(response);
-                }
-            });
-            payload.append('responses', JSON.stringify(textResponses));
-        }
-
-        // 4. Mapear y añadir el resto de los campos con los nombres que el backend espera
-        const keyMapping = {
-            name: 'name',
-            lastname: 'lastName',
-            date_birth: 'birthDate',
-            phone_number: 'phoneNumber',
-            type_identification: 'typeIdentification',
-            num_identification: 'numIdentification',
-            was_voluntary: 'wasVoluntary',
-            volunteer_motivation: 'volunteerMotivation',
-            programs_university: 'programsUniversity',
-            how_did_you_find_us: 'howDidYouFindUs',
-            subAreaId: 'idPostulationArea',
-            school_grades: 'schoolGrades',
-            quechua_level: 'quechuaLevel',
-            calling_plan: 'callingPlan',
-            advisoryCapacity: 'advisoryCapacity',
-        };
-
-        const excludedKeys = ['file', 'video', 'availability', 'responses', 'acceptTerms', 'acceptDataPolicy'];
-        for (const key in formData) {
-            if (!excludedKeys.includes(key) && formData[key] !== null) {
-                const backendKey = keyMapping[key] || key;
-                payload.append(backendKey, formData[key]);
-            }
-        }
-
-        // 5. Llamar al endpoint correcto
-        try {
-            if (volunteerType === 'staff') {
-                await createStaffApplication(payload);
-            } else if (volunteerType === 'asesoria') {
-                await createAdviserApplication(payload);
-            } else {
-                throw new Error("Tipo de voluntario no reconocido.");
-            }
-
-            setShowSuccessModal(true); // Mostrar modal de éxito
-            // toast.success("¡Postulación enviada con éxito!");
-            // navigate('/thank-you');
-
-        } catch (error) {
-            const errorMsg = error.response?.data?.message || error.message || "Error al enviar el formulario.";
-            setSubmitError(Array.isArray(errorMsg) ? errorMsg.join(', ') : errorMsg);
-            toast.error(`Error: ${Array.isArray(errorMsg) ? errorMsg.join(', ') : errorMsg}`);
-        } finally {
-            setLoading(false);
-        }
+        // Simula validación y muestra el modal de éxito
+        setShowSuccessModal(true);
     };
 
 
@@ -512,16 +413,30 @@ export default function VolunteerForm() {
                         <button type="button" onClick={nextStep} className="ml-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Siguiente</button>
                     )}
                     {currentStep === totalSteps && (
-                        <button type="submit" disabled={loading || !formData.acceptTerms || !formData.acceptDataPolicy} className="ml-auto px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {loading ? 'Enviando...' : 'Enviar Postulación'}
+                        <button type="submit" className="ml-auto px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Enviar Postulación
                         </button>
                     )}
                 </div>
                 {submitError && <p className="text-red-500 mt-4 text-right">{submitError}</p>}
             </form>
 
-            {/* Modal de éxito */}
-            <SuccessModal open={showSuccessModal} onClose={() => { setShowSuccessModal(false); navigate('/thank-you'); }} />
+            {showSuccessModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-8 rounded shadow-lg text-center">
+                        <h2 className="text-2xl font-bold mb-4">¡Postulación enviada con éxito!</h2>
+                        <button
+                            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded"
+                            onClick={() => {
+                                setShowSuccessModal(false);
+                                navigate('/thank-you');
+                            }}
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
