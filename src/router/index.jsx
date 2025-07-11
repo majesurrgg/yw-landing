@@ -9,7 +9,8 @@ import NotFoundPage from "../pages/NotFoundPage";
 import MainLayout from "../layouts/MainLayout";
 import VolunteerDetailPage from "../pages/VolunteerDetailPage";
 //import VolunteerDetailPage from "../pagesVolunteerDetailPage";
-import DonationPage from "../pages/DonationPage";
+import DonatePage from "../pages/DonatePage";
+import DonationForm from "../pages/DonationForm";
 import SuccessPage from "../pages/SuccessPage";
 import CancelPage from "../pages/CancelPage";
 function AppRoutes() {
@@ -23,7 +24,8 @@ function AppRoutes() {
         <Route path="/volunteerDetailPage/:areaId" element={<VolunteerDetailPage/>}/> */}
         {/** ruta que espera un parametro dinamico */}
         <Route path="/volunteerDetailPage/:subAreaId" element={<VolunteerDetailPage />} />
-        <Route path="/donation" element={<DonationPage />} />
+        <Route path="/donation-form" element={<DonationForm />} />
+        <Route path="/donation" element={<DonatePage />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cancel" element={<CancelPage />} />
         <Route path='/volunteering' element={<Volunteering />} />
