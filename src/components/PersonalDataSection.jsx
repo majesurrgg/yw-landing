@@ -1,3 +1,4 @@
+// PersonalDataSection.jsx
 "use client"
 
 import FormInput from "./FormInput"
@@ -7,6 +8,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
   const documentOptions = [
     { value: "DNI", label: "DNI" },
     { value: "PASSPORT", label: "Pasaporte" },
+    { value: "PASSPORT", label: "Pasaporte" },
   ]
 
   return (
@@ -15,8 +17,8 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <FormInput
-          label="Nombres"
-          value={formData.name}
+          label="¿Cuáles son tus nombres?"
+          value={formData.name || ""}
           onChange={(e) => handleInputChange("name", e.target.value)}
           placeholder="John"
           required
@@ -30,7 +32,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
             </select>
             <input
               type="tel"
-              value={formData.phone_number}
+              value={formData.phone_number || ""}
               onChange={(e) => handleInputChange("phone_number", e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="987654321"
@@ -40,7 +42,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
         </div>
         <FormSelect
           label="Tipo de documento"
-          value={formData.type_identification}
+          value={formData.type_identification || ""}
           onChange={(e) => handleInputChange("type_identification", e.target.value)}
           options={documentOptions}
           required
@@ -49,24 +51,24 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <FormInput
-          label="Apellidos"
-          value={formData.last_name}
-          onChange={(e) => handleInputChange("last_name", e.target.value)}
+          label="¿Cuáles son tus apellidos?"
+          value={formData.lastname || ""}
+          onChange={(e) => handleInputChange("lastname", e.target.value)}
           placeholder="Doe"
           required
         />
         <FormInput
           label="Correo electrónico"
           type="email"
-          value={formData.email}
+          value={formData.email || ""}
           onChange={(e) => handleInputChange("email", e.target.value)}
           placeholder="username@gmail.com"
           required
         />
         <FormInput
-          label="Número de documento"
-          value={formData.num_identification}
-          onChange={(e) => handleInputChange("num_identification", e.target.value)}
+          label="Digita tu número de documento"
+          value={formData.numeroDocumento}
+          onChange={(e) => handleInputChange("numeroDocumento", e.target.value)}
           placeholder="78987605"
           required
         />
@@ -76,7 +78,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
         <FormInput
           type="date"
           label="Fecha de Nacimiento"
-          value={formData.date_birth}
+          value={formData.date_birth || ""}
           onChange={(e) => handleInputChange("date_birth", e.target.value)}
           required
         />
@@ -112,14 +114,14 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
           <label className="block text-sm font-medium mb-1">Curriculum Vitae (CV)</label>
           <input
             type="file"
-            onChange={(e) => handleFileChange("cv_url", e.target.files[0])}
+            onChange={(e) => handleFileChange("file", e.target.files[0])}
             className="block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-md file:border-0
               file:text-sm file:font-semibold
               file:bg-blue-600 file:text-white
               hover:file:bg-blue-700"
-            accept=".pdf,.doc,.docx"
+            accept=".pdf"
             required
           />
         </div>

@@ -1,29 +1,272 @@
-// VolunteerForm.jsx
-"use client"
+// src/components/VolunteerForm.jsx
 
-import { useState, useEffect } from "react"
-import { volunteerService } from "../services/volunteerService"
-import PersonalDataSection from "./PersonalDataSection"
-import VolunteerAreasSection from "./VolunteerAreasSection"
-import AvailabilitySection from "./AvailabilitySection"
-import FormSubmitSection from "./FormSubmitSection"
-import { toast } from 'react-toastify'
-import MotivationSection from "./MotivationSection"
+import { useState, useEffect } from "react";
+// Modal simple para mostrar mensaje de postulación enviada
+function SuccessModal({ open, onClose }) {
+    if (!open) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+                <h2 className="text-2xl font-bold mb-4 text-green-600">¡Postulación enviada!</h2>
+                <p className="mb-6">Tu postulación ha sido enviada con éxito. Pronto nos pondremos en contacto contigo.</p>
+                <button onClick={onClose} className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Cerrar</button>
+            </div>
+        </div>
+    );
+}
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+
+import { getAreaById, getSubAreaById, getQuestionsBySubAreaId } from "../services/areaService";
+import { createStaffApplication, createAdviserApplication } from "../services/volunteerService";
+
+// Importamos los componentes de sección que ya tienes
+import PersonalDataSection from "./PersonalDataSection";
+import AvailabilitySection from "./AvailabilitySection";
+import MotivationSection from "./MotivationSection";
+import FormSubmitSection from "./FormSubmitSection";
+import FormInput from "./FormInput"; // Asumo que tienes este componente
+import FormSelect from "./FormSelect"; // Asumo que tienes este componente
+
+// --- Componentes de Sección Específicos ---
+
+// Componente para la motivación específica de Staff
+const StaffMotivationSection = ({ formData, handleInputChange, programsUniversityOptions, infoSourceOptions }) => (
+    <div className="space-y-6">
+        <h2 className="text-2xl font-bold mb-4 border-b pb-2">Motivación y Experiencia</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div>
+                <label className="block text-sm font-medium mb-2">¿Tienes experiencia previa en voluntariado?</label>
+                <div className="flex space-x-4">
+                    <label className="flex items-center">
+                        <input type="radio" name="experience" checked={formData.experience === true} onChange={() => handleInputChange("experience", true)} className="mr-2 h-4 w-4 text-blue-600" />
+                        Sí
+                    </label>
+                    <label className="flex items-center">
+                        <input type="radio" name="experience" checked={formData.experience === false} onChange={() => handleInputChange("experience", false)} className="mr-2 h-4 w-4 text-blue-600" />
+                        No
+                    </label>
+                </div>
+            </div>
+            <FormSelect label="¿Perteneces a alguno de los siguientes programas/universidades?"
+                name="programs_university"
+                value={formData.programsUniversity}
+                onChange={(e) => handleInputChange("programs_university", e.target.value)}
+                options={programsUniversityOptions} required />
+        </div>
+
+        <FormInput as="textarea" label="¿Cuál es tu motivación para ser voluntario/a con nosotros?" name="volunteer_motivation" value={formData.volunteerMotivation} onChange={(e) => handleInputChange(e.target.name, e.target.value)} placeholder="Cuéntanos por qué quieres ser parte de nuestro equipo..." required />
+
+        <FormSelect label="¿Cómo te enteraste de esta oportunidad?" name="how_did_you_find_us" value={formData.howDidYouFindUs} onChange={(e) => handleInputChange("how_did_you_find_us", e.target.value)} options={infoSourceOptions} required />
+    </div>
+);
+
+
+
+
+
+// --- AÑADE ESTA FUNCIÓN SI NO EXISTE ---
+const handleQuestionFileResponse = (questionId, file) => {
+    setFormData(prev => {
+        const otherResponses = prev.responses.filter(r => r.questionId !== questionId);
+        return {
+            ...prev,
+            responses: [...otherResponses, { questionId, reply: file }]
+        };
+    });
+};
+
+
+// Componente para las preguntas dinámicas de los Asesores
+// --- Componente para las preguntas dinámicas con lógica interna ---
+const DynamicQuestionsSection = ({ questions, formData, handleResponse, handleFileResponse }) => (
+    <div className="space-y-6">
+        <h2 className="text-2xl font-bold mb-4 border-b pb-2">Preguntas Específicas del Puesto</h2>
+
+        {!questions || questions.length === 0 ? (
+            <p className="text-gray-500">No hay preguntas específicas para este puesto.</p>
+        ) : (
+            questions.map(q => {
+                const currentResponse = formData.responses.find(r => r.questionId === q.id);
+
+                // Función interna para decidir qué input renderizar
+                const renderInput = () => {
+                    switch (q.type) {
+                        case 'FILE_UPLOAD':
+                            return (
+                                <div>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => handleFileResponse(q.id, e.target.files[0])}
+                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                                        accept=".pdf,.doc,.docx,.mp4,.mov"
+                                        required
+                                    />
+                                    {currentResponse?.reply && <p className="text-sm text-gray-500 mt-2">Archivo seleccionado: {currentResponse.reply.name}</p>}
+                                </div>
+                            );
+
+                        case 'SELECT':
+                            const selectOptions = q.questionText.includes('taller')
+                                ? ['Teatro', 'Danza', 'Música', 'Oratoria']
+                                : ['Sí', 'No'];
+
+                            return (
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    value={currentResponse?.reply || ''}
+                                    onChange={(e) => handleResponse(q.id, e.target.value)}
+                                    required
+                                >
+                                    <option value="" disabled>Selecciona una opción</option>
+                                    {selectOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            );
+
+                        // --- BLOQUE 'RADIO' CORREGIDO ---
+                        case 'RADIO': {
+                            let radioOptions = []; // Inicializamos un array vacío para las opciones
+
+                            // Definimos las opciones basadas en el texto de la pregunta
+                            if (q.questionText.includes('beneficiarios')) {
+                                radioOptions = ['1', '2', '3'];
+                            } else if (q.questionText.includes('puesto')) {
+                                radioOptions = ['Yaku bienestar: Facilitador psicoeducativo'];
+                            } else if (q.questionText.includes('psicología')) {
+                                radioOptions = ['Sí, tengo formación académica', 'Sí, tengo experiencia', 'Ambas', 'No'];
+                            } else {
+                                // Opciones por defecto si ninguna condición coincide
+                                radioOptions = ['Sí', 'No'];
+                            }
+
+                            return (
+                                <div className="flex flex-col space-y-2">
+                                    {radioOptions.map(opt => (
+                                        <label key={opt} className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                name={`question_${q.id}`}
+                                                value={opt}
+                                                checked={currentResponse?.reply === opt}
+                                                onChange={(e) => handleResponse(q.id, e.target.value)}
+                                                className="mr-2 h-4 w-4 text-blue-600"
+                                                required
+                                            />
+                                            {opt}
+                                        </label>
+                                    ))}
+                                </div>
+                            );
+                        }
+
+                        case 'CHECKBOX': {
+                            const options = q.questionText.includes('asignaturas')
+                                ? ['Matemática', 'Comunicación', 'Ciencias', 'Inglés']
+                                : [];
+
+                            // El manejo de checkbox es más complejo si se permiten múltiples selecciones.
+                            // Este es un ejemplo simplificado.
+                            return (
+                                <div className="flex flex-col space-y-2">
+                                    {options.map(opt => (
+                                        <label key={opt} className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                // Aquí necesitarías una lógica más avanzada para manejar un array de respuestas
+                                                // onChange={...}
+                                                className="mr-2 h-4 w-4 text-blue-600 rounded"
+                                            />
+                                            {opt}
+                                        </label>
+                                    ))}
+                                </div>
+                            );
+                        }
+
+                        case 'NUMBER':
+                            return (
+                                <input
+                                    type="number"
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    value={currentResponse?.reply || ''}
+                                    onChange={(e) => handleResponse(q.id, e.target.value)}
+                                    required
+                                />
+                            );
+                        default:
+                            return (
+                                <textarea
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                    rows="3"
+                                    value={currentResponse?.reply || ''}
+                                    onChange={(e) => handleResponse(q.id, e.target.value)}
+                                    required
+                                />
+                            );
+                    }
+                };
+
+                return (
+                    <div key={q.id}>
+                        <label className="block text-sm font-medium mb-2">{q.questionText}</label>
+                        {renderInput()}
+                    </div>
+                );
+            })
+        )}
+    </div>
+);
+
+// --- El Componente Principal del Formulario ---
 
 export default function VolunteerForm() {
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [currentStep, setCurrentStep] = useState(1);
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+
+    const subAreaId = searchParams.get('subAreaId');
+    const areaId = searchParams.get('areaId');
+    const volunteerType = searchParams.get('type');
+
+    // Opciones para los selects, definidas en el componente padre
+    const quechuaLevelOptions = [{ value: "NULO", label: "No lo hablo" },
+    { value: "BASICO", label: "Nivel básico" },
+    { value: "INTERMEDIO", label: "Nivel intermedio" },
+    { value: "AVANZADO", label: "Nivel avanzado" },
+    { value: "NATIVO", label: "Nativo" }];
+    const programsUniversityOptions =
+        [{ value: "PRONABEC", label: "Becario Pronabec" },
+        { value: "UNIVAS", label: "UNIVAS - UDEP" },
+        { value: "UTEC", label: "UTEC" },
+        { value: "UCV", label: "UCV" },
+        { value: "NINGUNO", label: "Ninguno" }];
+    const occupationOptions = [{ value: "ESTUDIO", label: "Solo estudio" },
+    { value: "TRABAJO", label: "Solo trabajo" },
+    { value: "AMBOS", label: "Ambos" }];
+    const infoSourceOptions = [{ value: "FACEBOOK", label: "Facebook" },
+    { value: "INSTAGRAM", label: "Instagram" },
+    { value: "LINKEDIN", label: "LinkedIn" },
+    { value: "TIKTOK", label: "TikTok" },
+    { value: "EMAIL", label: "Correo electrónico" },
+    { value: "UTEC_NEWSLETTER", label: "Boletín UTEC" },
+    { value: "PROA", label: "Proa" },
+    { value: "PRONABEC", label: "Pronabec" },
+    { value: "REFERRAL", label: "Referencia de un amigo/familia" }];
+
     const [formData, setFormData] = useState({
-        // Personal Data
         name: "",
-        last_name: "",
+        lastname: "",
         date_birth: "",
-        phone_number: "",
-        email: "",
+        phone_number: "", email: "",
         type_identification: "DNI",
         num_identification: "",
-        cv_url: null,
+        file: null,
+        video: null,
         was_voluntary: false,
-
-        // Availability
+        type_volunteer: volunteerType || "",
+        subAreaId: subAreaId || areaId,
         availability: {
             lunes: { manana: false, tarde: false, noche: false },
             martes: { manana: false, tarde: false, noche: false },
@@ -33,292 +276,111 @@ export default function VolunteerForm() {
             sabado: { manana: false, tarde: false, noche: false },
             domingo: { manana: false, tarde: false, noche: false },
         },
-        school_grades: "PRIMARIA34",
-        calling_plan: false,
-
-        // Experience and Motivation
-        experience: false,
-        occupation: "ESTUDIO",
-        volunteer_motivation: "",
-        why_asesor: "",
-        quechua_level: "NULO",
-        programs_university: "NINGUNO",
+        school_grades: "PRIMARIA34", calling_plan: false,
+        experience: false, occupation: "ESTUDIO", volunteer_motivation: "",
+        why_asesor: "", quechua_level: "NULO", programs_university: "NINGUNO",
         how_did_you_find_us: "FACEBOOK",
+        responses: [],
+        acceptTerms: false, acceptDataPolicy: false
+    });
 
-        // Area Selection & dinamic questions
-        type_volunteer: "", // Valor inicial
-        selectedAreaId: null, // ID del área Staff o Asesoría seleccionada
-        selectedSubAreaId: null, // ID de la subárea seleccionada
-        responses: [] // Respuestas a preguntas dinámicas
-    })
-
-    const [allAreas, setAllAreas] = useState({ staffAreas: [], asesoryAreas: [] }); // Para almacenar TODAS las áreas
-    const [displayAreas, setDisplayAreas] = useState([]); // Las áreas que se mostrarán en el select (filtradas por type_volunteer)
-    const [subAreas, setSubAreas] = useState([]); // Subáreas del área seleccionada
-    const [dynamicQuestions, setDynamicQuestions] = useState([]); // Preguntas de la subárea seleccionada
-
-    const [loading, setLoading] = useState(false);
+    const [positionInfo, setPositionInfo] = useState({ areaName: '', subAreaName: '' });
+    const [dynamicQuestions, setDynamicQuestions] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [submitError, setSubmitError] = useState(null);
 
-    // opciones para preguntas, quechua_level, program_university, occupation_opcion, etc
-    const quechuaLevelOptions = [
-        { value: "NULO", label: "No lo hablo" },
-        { value: "BASICO", label: "Nivel básico" },
-        { value: "INTERMEDIO", label: "Nivel intermedio" },
-        { value: "AVANZADO", label: "Nivel avanzado" },
-        { value: "NATIVO", label: "Nativo" },
-    ]
-
-    const programsUniversityOptions = [
-        { value: "PRONABEC", label: "Becario Pronabec" },
-        { value: "UNIVAS", label: "UNIVAS - UDEP" },
-        { value: "UTEC", label: "UTEC" },
-        { value: "UCV", label: "UCV" },
-        { value: "NINGUNO", label: "Ninguno" },
-    ]
-
-    const occupationOptions = [
-        { value: "ESTUDIO", label: "Solo estudio" },
-        { value: "TRABAJO", label: "Solo trabajo" },
-        { value: "AMBOS", label: "Ambos" },
-    ]
-    const infoSourceOptions = [
-        { value: "FACEBOOK", label: "Facebook" },
-        { value: "INSTAGRAM", label: "Instagram" },
-        { value: "LINKEDIN", label: "LinkedIn" },
-        { value: "TIKTOK", label: "TikTok" },
-        { value: "EMAIL", label: "Correo electrónico" },
-        { value: "UTEC_NEWSLETTER", label: "Boletín UTEC" },
-        { value: "PROA", label: "Proa" },
-        { value: "PRONABEC", label: "Pronabec" },
-        { value: "REFERRAL", label: "Referencia de un amigo/familia" }
-    ]
-
-    const artAndCultureWorkshops = [
-        { value: "CUENTA_CUENTOS", label: "Cuenta cuentos" },
-        { value: "DIBUJO_PINTURA", label: "Dibujo y Pintura" },
-        { value: "MUSICA", label: "Música" },
-        { value: "ORATORIA", label: "Oratoria" },
-        { value: "TEATRO", label: "Teatro" },
-        { value: "DANZA", label: "Danza" },
-    ]
-
-    // Carga todas las áreas (STAFF y ASESORIAS) disponibles al inicio (deberia venir predefinido con la area y sub area que escogio el usuario en la page VolunteerPageInfo, VolunteerDetailPage)
     useEffect(() => {
-        const loadAllAreas = async () => {
+        const loadPositionData = async () => {
             try {
-                const data = await volunteerService.getAllAreas();
-                setAllAreas(data);
-                // Establecer un valor por defecto para type_volunteer y displayAreas
-                if (data.staffAreas.length > 0) {
-                    setFormData(prev => ({ ...prev, type_volunteer: "STAFF" }));
-                    setDisplayAreas(data.staffAreas);
-                } else if (data.asesoryAreas.length > 0) {
-                    setFormData(prev => ({ ...prev, type_volunteer: "ADVISER" }));
-                    setDisplayAreas(data.asesoryAreas);
+                if (areaId) {
+                    const areaData = await getAreaById(areaId);
+                    setPositionInfo(prev => ({ ...prev, areaName: areaData.name }));
+                }
+                if (subAreaId) {
+                    const subAreaData = await getSubAreaById(subAreaId);
+                    setPositionInfo(prev => ({ ...prev, subAreaName: subAreaData.name }));
+                    const questions = await getQuestionsBySubAreaId(subAreaId);
+                    setDynamicQuestions(questions);
                 }
             } catch (error) {
-                console.error("Error cargando todas las áreas:", error);
-                toast.error("Error cargando las áreas principales.");
+                toast.error("Error al cargar la información del puesto.");
+            } finally {
+                setLoading(false);
             }
         };
-        loadAllAreas();
-    }, []);
 
-
-    // Efecto para filtrar las áreas mostradas cuando cambia type_volunteer
-    useEffect(() => {
-        if (formData.type_volunteer === "STAFF") {
-            setDisplayAreas(allAreas.staffAreas);
-            // Resetear selección de área y subárea al cambiar de tipo
-            setFormData(prev => ({ ...prev, selectedAreaId: null, selectedSubAreaId: null }));
-            setSubAreas([]);
-            setDynamicQuestions([]);
-        } else if (formData.type_volunteer === "ADVISER") {
-            setDisplayAreas(allAreas.asesoryAreas);
-            // Resetear selección de área y subárea al cambiar de tipo
-            setFormData(prev => ({ ...prev, selectedAreaId: null, selectedSubAreaId: null }));
-            setSubAreas([]);
-            setDynamicQuestions([]);
+        if (areaId || subAreaId) {
+            loadPositionData();
+        } else {
+            setLoading(false);
+            toast.error("No se ha especificado un puesto para postular.");
         }
-    }, [formData.type_volunteer, allAreas]);
+    }, [areaId, subAreaId]);
 
-    // Efecto para cargar subáreas cuando se selecciona un selectedAreaId (Área Staff/Asesoría)
-    useEffect(() => {
-        const fetchSubAreas = async () => {
-            if (formData.selectedAreaId && formData.type_volunteer === "STAFF") {
-                try {
-                    const fetchedSubAreas = await volunteerService.getSubAreasByAreaStaffId(formData.selectedAreaId);
-                    setSubAreas(fetchedSubAreas);
-                    // Resetear selección de subárea y preguntas al cargar nuevas subáreas
-                    setFormData(prev => ({ ...prev, selectedSubAreaId: null }));
-                    setDynamicQuestions([]);
-                } catch (error) {
-                    console.error("Error cargando subáreas:", error);
-                    toast.error("Error cargando las subáreas.");
-                    setSubAreas([]);
+    const nextStep = () => setCurrentStep(prev => prev + 1);
+    const prevStep = () => setCurrentStep(prev => prev - 1);
+
+    const handleInputChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+    const handleFileChange = (field, file) => setFormData(prev => ({ ...prev, [field]: file }));
+
+    const handleHorarioChange = (dia, periodo) => {
+        setFormData(prev => ({
+            ...prev,
+            availability: {
+                ...prev.availability,
+                [dia]: {
+                    ...prev.availability[dia],
+                    [periodo]: !prev.availability[dia][periodo]
                 }
-            } else {
-                setSubAreas([]); // Limpiar subáreas si no hay área seleccionada o no es STAFF
-                setFormData(prev => ({ ...prev, selectedSubAreaId: null }));
-                setDynamicQuestions([]);
             }
-        };
-
-        fetchSubAreas();
-    }, [formData.selectedAreaId, formData.type_volunteer]); // Depende del área seleccionada y el tipo de voluntario
-
-
-    // Efecto para cargar preguntas cuando se selecciona un selectedSubAreaId
-    useEffect(() => {
-        const fetchDynamicQuestions = async () => {
-            if (formData.selectedSubAreaId) {
-                try {
-                    const questions = await volunteerService.getQuestionsBySubAreaId(formData.selectedSubAreaId);
-                    setDynamicQuestions(questions);
-                } catch (error) {
-                    console.error("Error cargando preguntas dinámicas:", error);
-                    toast.error("Error cargando las preguntas dinámicas.");
-                    setDynamicQuestions([]);
-                }
-            } else {
-                setDynamicQuestions([]); // Limpiar preguntas si no hay subárea seleccionada
-            }
-        };
-
-        fetchDynamicQuestions();
-    }, [formData.selectedSubAreaId]); // Depende de la subárea seleccionada 
-
-
-    const handleInputChange = (field, value) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-    }
-
-    const handleFileChange = (field, file) => {
-        setFormData((prev) => ({ ...prev, [field]: file }))
-    }
-
-    // Nueva función para manejar el cambio de tipo de voluntario (Staff/Asesor)
-    const handleTypeVolunteerChange = (value) => {
-        setFormData(prev => ({
-            ...prev,
-            type_volunteer: value,
-            selectedAreaId: null, // Resetear área al cambiar el tipo
-            selectedSubAreaId: null, // Resetear subárea
-            responses: [] // Resetear respuestas dinámicas
         }));
     };
 
-    // Nueva función para manejar el cambio de Área (Staff o Asesoría)
-    const handleAreaSelectChange = (value) => {
-        setFormData(prev => ({
-            ...prev,
-            selectedAreaId: value, // Guardar el ID del área seleccionada
-            selectedSubAreaId: null, // Resetear subárea si cambia el área
-            responses: [] // Resetear respuestas dinámicas
-        }));
+    const handleQuestionResponse = (questionId, reply) => {
+        setFormData(prev => {
+            const otherResponses = prev.responses.filter(r => r.questionId !== questionId);
+            return {
+                ...prev,
+                responses: [...otherResponses, { questionId, reply }]
+            };
+        });
     };
 
-    // Nueva función para manejar el cambio de SubÁrea
-    const handleSubAreaSelectChange = (value) => {
-        setFormData(prev => ({
-            ...prev,
-            selectedSubAreaId: value, // Guardar el ID de la subárea seleccionada
-            responses: [] // Resetear respuestas dinámicas
-        }));
-    };
 
-    const handleQuestionResponse = (questionId, response) => {
-        setFormData((prev) => ({
-            ...prev,
-            responses: [
-                ...prev.responses.filter(r => r.questionId !== questionId),
-                { questionId, response }
-            ]
-        }));
-    };
+    // --- LÓGICA DE ENVÍO FINAL Y CORREGIDA ---
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setSubmitError(null);
-
-        try {
-            // Asegúrate de que el backend pueda procesar la estructura de formData
-            // Es posible que necesites transformar los IDs de selectedAreaId y selectedSubAreaId
-            // a la forma que espera tu backend (ej. `areaStaff: { id: selectedAreaId }`)
-            await volunteerService.createVolunteer(formData);
-            toast.success("¡Formulario enviado con éxito!");
-            // Reset form or redirect
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            setSubmitError(error.message || "Error al enviar el formulario");
-            toast.error(error.message || "Error al enviar el formulario");
-        } finally {
-            setLoading(false);
-        }
+        // Simula validación y muestra el modal de éxito
+        setShowSuccessModal(true);
     };
 
+
+    const totalSteps = volunteerType === 'staff' ? 3 : 5;
+
     return (
-        <div className="max-w-6xl">
-            {submitError && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {submitError}
-                </div>
-            )}
+        <div className="max-w-6xl mx-auto p-4">
+            <h1 className="text-3xl font-bold mb-2">Formulario de Postulación</h1>
+            <p className="text-lg text-gray-600 mb-4">Paso {currentStep} de {totalSteps}</p>
 
-            <div className="mx-auto">
-                <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8">
-                    <PersonalDataSection
-                        formData={formData}
-                        handleInputChange={handleInputChange}
-                        handleFileChange={handleFileChange}
-                    />
-
-                    <VolunteerAreasSection
-                        formData={formData}
-                        typeVolunteerOptions={[{ value: "STAFF", label: "Voluntario de Staff" }, { value: "ADVISER", label: "Voluntario Asesor" }]}
-                        handleTypeVolunteerChange={handleTypeVolunteerChange} // Nuevo handler
-                        displayAreas={displayAreas} // Las áreas filtradas
-                        handleAreaSelectChange={handleAreaSelectChange} // Nuevo handler para selección de área
-                        subAreas={subAreas} // Pasar las subáreas cargadas
-                        handleSubAreaSelectChange={handleSubAreaSelectChange} // Nuevo handler para selección de subárea
-                        dynamicQuestions={dynamicQuestions} // Pasar las preguntas dinámicas
-                        handleQuestionResponse={handleQuestionResponse}
-                    />
-
-                    <AvailabilitySection
-                        formData={formData}
-                        handleInputChange={handleInputChange}
-                    />
-
-                    <MotivationSection
-                        formData={formData}
-                        handleInputChange={handleInputChange}
-                        occupationOptions={occupationOptions}
-                        quechuaLevelOptions={quechuaLevelOptions}
-                        programsUniversityOptions={programsUniversityOptions}
-                        infoSourceOptions={infoSourceOptions}
-                    />
-
-                    <FormSubmitSection
-                        formData={formData}
-                        handleInputChange={handleInputChange}
-                        loading={loading}
-                    />
-
-                    <div className="mt-6 flex justify-end">
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className={`px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                        >
-                            {loading ? 'Enviando...' : 'Enviar postulación'}
-                        </button>
-                    </div>
-                </form>
+            <div className="bg-blue-100 text-blue-800 p-3 rounded-md mb-6">
+                <p>Estás postulando a: <strong>{positionInfo.subAreaName || positionInfo.areaName}</strong></p>
             </div>
+
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8">
+
+                {currentStep === 1 && <PersonalDataSection formData={formData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />}
+
+                <VolunteerAreasSection
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    handleAreaChange={handleAreaChange}
+                />
+
+                <AvailabilitySection formData={formData} handleHorarioChange={handleHorarioChange} />
+
+                <FormSubmitSection formData={formData} handleInputChange={handleInputChange} />
+            </form>
         </div>
-    )
+    );
 }

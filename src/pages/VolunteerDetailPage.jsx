@@ -8,7 +8,7 @@
 // si area.subAreas esta vacio, muestra detalles del área misma
 
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, } from 'react-router-dom';
 // importamos de apiService.js
 import { getSubAreaById } from '../services/areaService';
 
@@ -69,6 +69,7 @@ export default function VolunteerDetailPage() {
 
                     <div className="border-b border-gray-200 pb-4 mb-6">
                         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">{puesto.name}</h1>
+                        <p className='text-lg text-gray-500 mt-2'>En el área de: {puesto.areaStaff.name}</p> {/**mantener o borrar */}
                         <p className="text-md text-gray-600 mt-2">{puesto.description}</p>
                     </div>
 
@@ -98,9 +99,16 @@ export default function VolunteerDetailPage() {
                     </div>
 
                     <div className="mt-10 pt-6 border-t border-gray-200 text-center">
-                        <button className="bg-yellow-500 text-white font-bold py-3 px-12 rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg">
+                        <Link
+                            // Apuntamos al formulario y pasamos los IDs en la URL
+                            to={`/volunteering?subAreaId=${puesto.id}&areaId=${puesto.areaStaff.id}&type=${
+                                puesto.areaStaff.name === 'ASESORIES' ? 'asesoria' : 'staff'
+                            }`}
+                            className="bg-yellow-500 text-white font-bold py-3 px-12 rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg"
+                        >
                             Postular
-                        </button>
+                        </Link>
+
                     </div>
                 </div>
             </div>

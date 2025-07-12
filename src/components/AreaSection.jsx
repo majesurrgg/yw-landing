@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 // Recibimos la prop 'itemType' para saber cómo comportarnos
 export default function AreaSection({ title, color, bg, areas, loading, emptyMsg, itemType, onAreaClick }) {
-  
+
   // Un componente interno para no repetir el diseño de la tarjeta.
   const Card = ({ area }) => (
     <div
