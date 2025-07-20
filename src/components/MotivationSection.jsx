@@ -7,7 +7,7 @@ import FormInput from "./FormInput";
 
 export default function MotivationSection({
     formData,
-    handleInputChange,
+    onFieldChange,
     occupationOptions,
     quechuaLevelOptions,
     programsUniversityOptions,
@@ -29,8 +29,7 @@ export default function MotivationSection({
                                 type="radio"
                                 name="experience"
                                 checked={formData.experience === true}
-                                // Usar handleInputChange aquí
-                                onChange={(e) => handleInputChange("experience", true)}
+                                onChange={(e) => onFieldChange("experience", true)}
                                 className="mr-2"
                             />
                             Sí
@@ -41,7 +40,7 @@ export default function MotivationSection({
                                 name="experience"
                                 checked={formData.experience === false}
                                 // Usar handleInputChange aquí
-                                onChange={(e) => handleInputChange("experience", false)}
+                                onChange={(e) => onFieldChange("experience", false)}
                                 className="mr-2"
                             />
                             No
@@ -53,8 +52,7 @@ export default function MotivationSection({
                     label="¿Cuál es tu motivación para ser voluntario?"
                     type="textarea" // Aunque FormInput generalmente es para 'text', 'email', 'number', si tienes lógica interna para 'textarea' está bien. Si es un componente separado, se llamaría FormTextArea.
                     value={formData.volunteer_motivation}
-                    // Usar handleInputChange aquí
-                    onChange={(e) => handleInputChange("volunteer_motivation", e.target.value)}
+                    onChange={(e) => onFieldChange("volunteer_motivation", e.target.value)}
                     placeholder="Cuéntanos por qué quieres ser parte de nuestro equipo..."
                     required
                 />
@@ -64,7 +62,7 @@ export default function MotivationSection({
                  <FormSelect
                     label="Actualmente te encuentras estudiando y/o trabajando"
                     value={formData.occupation}
-                    onChange={(e) => handleInputChange("occupation", e.target.value)}
+                    onChange={(e) => onFieldChange("occupation", e.target.value)}
                     options={occupationOptions} // Ahora usa la prop
                     required
                 />
@@ -72,7 +70,7 @@ export default function MotivationSection({
                 <FormSelect
                     label="¿Cuál consideras que es tu nivel de conocimiento del Quechua de forma fluida y escrita?"
                     value={formData.quechua_level}
-                    onChange={(e) => handleInputChange("quechua_level", e.target.value)}
+                    onChange={(e) => onFieldChange("quechua_level", e.target.value)}
                     options={quechuaLevelOptions} // Ahora usa la prop
                     required
                 />
@@ -82,7 +80,7 @@ export default function MotivationSection({
                 <FormSelect
                     label="¿Perteneces a alguno de los siguientes programas/universidades?"
                     value={formData.programs_university}
-                    onChange={(e) => handleInputChange("programs_university", e.target.value)}
+                    onChange={(e) => onFieldChange("programs_university", e.target.value)}
                     options={programsUniversityOptions} // Ahora usa la prop
                     required
                 />
@@ -90,7 +88,7 @@ export default function MotivationSection({
                     label="¿Cómo te enteraste de nosotros?"
                     value={formData.how_did_you_find_us}
                     // Usar handleInputChange aquí
-                    onChange={(e) => handleInputChange("how_did_you_find_us", e.target.value)}
+                    onChange={(e) => onFieldChange("how_did_you_find_us", e.target.value)}
                     options={infoSourceOptions} // Esta prop también necesita ser pasada
                     required
                 />

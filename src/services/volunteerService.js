@@ -22,7 +22,7 @@ export const volunteerService = {
   },
 
   // Obtiene las preguntas para un ID de SubÁrea específico
-  async   getQuestionsBySubAreaId(subAreaId) {
+  async getQuestionsBySubAreaId(subAreaId) {
     const response = await fetch(`${API_BASE_URL}/areas/subareas/${subAreaId}/questions`);
     if (!response.ok) {
       throw new Error(`Failed to fetch questions for subarea ID ${subAreaId}`);

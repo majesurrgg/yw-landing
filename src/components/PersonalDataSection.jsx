@@ -4,10 +4,9 @@
 import FormInput from "./FormInput"
 import FormSelect from "./FormSelect"
 
-export default function PersonalDataSection({ formData, handleInputChange, handleFileChange }) {
+export default function PersonalDataSection({ formData, onFieldChange, onFileChange }) {
   const documentOptions = [
     { value: "DNI", label: "DNI" },
-    { value: "PASSPORT", label: "Pasaporte" },
     { value: "PASSPORT", label: "Pasaporte" },
   ]
 
@@ -19,7 +18,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
         <FormInput
           label="¿Cuáles son tus nombres?"
           value={formData.name || ""}
-          onChange={(e) => handleInputChange("name", e.target.value)}
+          onChange={(e) => onFieldChange("name", e.target.value)}
           placeholder="John"
           required
         />
@@ -33,7 +32,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
             <input
               type="tel"
               value={formData.phone_number || ""}
-              onChange={(e) => handleInputChange("phone_number", e.target.value)}
+              onChange={(e) => onFieldChange("phone_number", e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="987654321"
               required
@@ -43,7 +42,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
         <FormSelect
           label="Tipo de documento"
           value={formData.type_identification || ""}
-          onChange={(e) => handleInputChange("type_identification", e.target.value)}
+          onChange={(e) => onFieldChange("type_identification", e.target.value)}
           options={documentOptions}
           required
         />
@@ -53,7 +52,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
         <FormInput
           label="¿Cuáles son tus apellidos?"
           value={formData.lastname || ""}
-          onChange={(e) => handleInputChange("lastname", e.target.value)}
+          onChange={(e) => onFieldChange("lastname", e.target.value)}
           placeholder="Doe"
           required
         />
@@ -61,14 +60,14 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
           label="Correo electrónico"
           type="email"
           value={formData.email || ""}
-          onChange={(e) => handleInputChange("email", e.target.value)}
+          onChange={(e) => onFieldChange("email", e.target.value)}
           placeholder="username@gmail.com"
           required
         />
         <FormInput
           label="Digita tu número de documento"
-          value={formData.numeroDocumento}
-          onChange={(e) => handleInputChange("numeroDocumento", e.target.value)}
+          value={formData.num_identification || ""}
+          onChange={(e) => onFieldChange("num_identification", e.target.value)}
           placeholder="78987605"
           required
         />
@@ -79,7 +78,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
           type="date"
           label="Fecha de Nacimiento"
           value={formData.date_birth || ""}
-          onChange={(e) => handleInputChange("date_birth", e.target.value)}
+          onChange={(e) => onFieldChange("date_birth", e.target.value)}
           required
         />
         <div >
@@ -92,7 +91,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
                 type="radio"
                 name="was_voluntary"
                 checked={formData.was_voluntary === true}
-                onChange={(e) => handleInputChange("was_voluntary", true)}
+                onChange={(e) => onFieldChange("was_voluntary", true)}
                 className="mr-2"
               />
               Sí
@@ -102,7 +101,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
                 type="radio"
                 name="was_voluntary"
                 checked={formData.was_voluntary === false}
-                onChange={(e) => handleInputChange("was_voluntary", false)}
+                onChange={(e) => onFieldChange("was_voluntary", false)}
                 className="mr-2"
               />
               No
@@ -114,7 +113,7 @@ export default function PersonalDataSection({ formData, handleInputChange, handl
           <label className="block text-sm font-medium mb-1">Curriculum Vitae (CV)</label>
           <input
             type="file"
-            onChange={(e) => handleFileChange("file", e.target.files[0])}
+            onChange={(e) => onFileChange("file", e.target.files[0])}
             className="block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-md file:border-0
