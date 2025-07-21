@@ -25,7 +25,7 @@ export const prepareSubmissionData = (formData, volunteerType) => {
 
     // 2. Mapear programsUniversity a los valores correctos del backend
     const programsUniversityMap = {
-        'BECARIO': 'Becario Pronabec',
+        'PRONABEC': 'Becario Pronabec',
         'UNIVAS': 'UNIVAS - UDEP',
         'UTEC': 'UTEC',
         'UCV': 'UCV',
@@ -204,13 +204,13 @@ export const validateSubmissionData = (formData, volunteerType, dynamicQuestions
     }
 
     // Validar programsUniversity
-    const validPrograms = ['BECARIO', 'UNIVAS', 'UTEC', 'UCV', 'UTP', 'USIL', 'NINGUNO'];
+    const validPrograms = ['Pronabec', 'UNIVAS - UDEP', 'UTEC', 'UCV', 'UTP', 'USIL', 'Ninguno'];
     if (!validPrograms.includes(formData.programs_university)) {
         errors.push("Debe seleccionar un programa universitario válido");
     }
 
     // Validar howDidYouFindUs
-    const validInfoSources = ['FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'TIKTOK', 'EMAIL', 'BOLETIN_UTEC', 'PROA', 'PRONABEC', 'REFERENCIA'];
+    const validInfoSources = ['Facebook', 'Instagram', 'Linkedln', 'TikTok', 'Correo Electrónico', 'Boletín UTEC', 'Proa', 'Pronabec', 'Referencia de un amigo/familia'];
     if (!validInfoSources.includes(formData.how_did_you_find_us)) {
         errors.push("Debe seleccionar cómo se enteró de nosotros");
     }
