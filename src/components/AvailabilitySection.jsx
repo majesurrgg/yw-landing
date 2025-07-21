@@ -3,7 +3,7 @@
 
 import FormSelect from "./FormSelect" // Asegúrate de que este import sea correcto si usas FormSelect
 
-export default function AvailabilitySection({ formData, handleInputChange, handleHorarioChange }) {
+export default function AvailabilitySection({ formData, onFieldChange, onScheduleChange }) {
 
     const schoolGradesOptions = [
         { value: "PRIMARIA34", label: "Primaria (3° y 4° grado)" },
@@ -45,9 +45,8 @@ export default function AvailabilitySection({ formData, handleInputChange, handl
                                     <td key={periodo} className="p-2 text-center">
                                         <input
                                             type="checkbox"
-                                            // ¡CAMBIA ESTA LÍNEA!
                                             checked={formData.availability[dia][periodo] || false} // Usa .availability en lugar de .horarios
-                                            onChange={() => handleHorarioChange(dia, periodo)}
+                                            onChange={() =>onScheduleChange(dia, periodo)}
                                             className="h-4 w-4"
                                         />
                                     </td>
@@ -61,7 +60,7 @@ export default function AvailabilitySection({ formData, handleInputChange, handl
             <FormSelect
                 label="¿A qué niveles educativos podrías brindar asesoría?"
                 value={formData.school_grades}
-                onChange={(e) => handleInputChange("school_grades", e.target.value)}
+                onChange={(e) => onFieldChange("school_grades", e.target.value)}
                 options={schoolGradesOptions}
                 required
             />
@@ -76,7 +75,7 @@ export default function AvailabilitySection({ formData, handleInputChange, handl
                             type="radio"
                             name="calling_plan"
                             checked={formData.calling_plan === true}
-                            onChange={(e) => handleInputChange("calling_plan", true)}
+                            onChange={(e) => onFieldChange("calling_plan", true)}
                             className="mr-2"
                         />
                         Sí
@@ -86,7 +85,7 @@ export default function AvailabilitySection({ formData, handleInputChange, handl
                             type="radio"
                             name="calling_plan"
                             checked={formData.calling_plan === false}
-                            onChange={(e) => handleInputChange("calling_plan", false)}
+                            onChange={(e) => onFieldChange("calling_plan", false)}
                             className="mr-2"
                         />
                         No
