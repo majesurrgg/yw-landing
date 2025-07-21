@@ -6,9 +6,9 @@ import FormSelect from "./FormSelect" // Asegúrate de que este import sea corre
 export default function AvailabilitySection({ formData, onFieldChange, onScheduleChange }) {
 
     const schoolGradesOptions = [
-        { value: "PRIMARIA34", label: "Primaria (3° y 4° grado)" },
-        { value: "PRIMARIA56", label: "Primaria (5° y 6° grado)" },
-        { value: "SECUNDARIA123", label: "Secundaria (1°, 2° y 3° grado)" }
+        { value: "Primaria (3° y 4° grado)", label: "Primaria (3° y 4° grado)" },
+        { value: "Primaria (5° y 6° grado)", label: "Primaria (5° y 6° grado)" },
+        { value: "Secundaria (1°, 2° y 3° grado)", label: "Secundaria (1°, 2° y 3° grado)" }
     ]
 
     const dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"]

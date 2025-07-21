@@ -78,12 +78,20 @@ export default function VolunteerForm() {
 
             console.log('Enviando datos al endpoint:', endpoint);
 
-            
+
             await createApplication(endpoint, payload);
             toast.success("¡Postulación enviada con éxito!");
             navigate('/thank-you');
         } catch (error) {
             console.error('Error al enviar formulario:', error);
+            // --- MODIFICA ESTA PARTE ---
+            console.error('Error genérico al enviar formulario:', error); // <-- Error general de Axios
+
+            // ¡AÑADE ESTO PARA VER EL DETALLE DEL BACKEND!
+            if (error.response) {
+                console.error('🔍 Detalle del error del backend:', error.response.data);
+            }
+            // --- FIN DE LA MODIFICACIÓN ---
 
             // Manejo mejorado de errores
             let errorMsg = "Error al enviar el formulario.";
