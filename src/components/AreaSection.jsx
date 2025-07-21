@@ -11,6 +11,15 @@ export default function AreaSection({ title, color, bg, areas, loading, emptyMsg
       className="rounded shadow-md p-4 min-h-[100px] border-t-3 transition-all duration-300 ease-in-out h-full"
       style={{ backgroundColor: bg, borderColor: color }}
     >
+      {/** añadir imagen del área */}
+      {area.imageUrl && (
+        <img
+          src={area.imageUrl}
+          alt={area.name}
+          className="w-60 h-30 object-cover mx-auto mb-2 rounded-4xl"
+        >
+        </img>
+      )}
       <h4 className="font-bold text-base mb-1.5" style={{ color: color }}>
         {area.name}
       </h4>
