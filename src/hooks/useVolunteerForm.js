@@ -38,9 +38,8 @@ export const useVolunteerForm = () => {
         // Campos específicos para asesores (requeridos por el backend)
         experience: false,
         advisoryCapacity: 3, // Valor por defecto más realista
-        school_grades: "Secundaria (1°, 2° y 3° grado)", // Coincidir con el ejemplo del error
+        school_grades: "Secundaria (1°, 2° y 3° grado)", // Coincidir con el ejemplo del error,
         quechua_level: "Nivel intermedio", // Coincidir con el ejemplo del error
-        
         
         // Disponibilidad (solo para asesores)
         availability: {
