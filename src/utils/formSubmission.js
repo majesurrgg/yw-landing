@@ -23,33 +23,10 @@ export const prepareSubmissionData = (formData, volunteerType) => {
         payload.append('quechuaLevel', formData.quechua_level || 'No lo hablo');
     }
 
-    // 2. Mapear programsUniversity a los valores correctos del backend
-    const programsUniversityMap = {
-        'PRONABEC': 'Becario Pronabec',
-        'UNIVAS': 'UNIVAS - UDEP',
-        'UTEC': 'UTEC',
-        'UCV': 'UCV',
-        'UTP': 'UTP',
-        'USIL': 'USIL',
-        'NINGUNO': 'Ninguno'
-    };
-    const mappedProgram = programsUniversityMap[formData.programs_university] || 'Ninguno';
-    payload.append('programsUniversity', mappedProgram);
+    payload.append('programsUniversity', formData.programs_university || 'Ninguno');
+    payload.append('howDidYouFindUs', formData.how_did_you_find_us || 'Facebook');
 
-    // 3. Mapear howDidYouFindUs a los valores correctos del backend
-    const infoSourceMap = {
-        'FACEBOOK': 'Facebook',
-        'INSTAGRAM': 'Instagram',
-        'LINKEDIN': 'LinkedIn',
-        'TIKTOK': 'TikTok',
-        'EMAIL': 'Correo electrónico',
-        'BOLETIN_UTEC': 'Boletín UTEC',
-        'PROA': 'Proa',
-        'PRONABEC': 'Pronabec',
-        'REFERENCIA': 'Referencia de un amigo/familia'
-    };
-    const mappedInfoSource = infoSourceMap[formData.how_did_you_find_us] || 'Facebook';
-    payload.append('howDidYouFindUs', mappedInfoSource);
+
 
     // 4. Archivo CV (obligatorio)
     if (!formData.file || !(formData.file instanceof File)) {
@@ -204,7 +181,7 @@ export const validateSubmissionData = (formData, volunteerType, dynamicQuestions
     }
 
     // Validar programsUniversity
-    const validPrograms = ['Pronabec', 'UNIVAS - UDEP', 'UTEC', 'UCV', 'UTP', 'USIL', 'Ninguno'];
+    const validPrograms = ['Becario Pronabec', 'UNIVAS - UDEP', 'UTEC', 'UCV', 'UTP', 'USIL', 'Ninguno'];
     if (!validPrograms.includes(formData.programs_university)) {
         errors.push("Debe seleccionar un programa universitario válido");
     }

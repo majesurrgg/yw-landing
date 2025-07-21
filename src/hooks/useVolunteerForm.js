@@ -58,8 +58,8 @@ export const useVolunteerForm = () => {
         occupation: "ESTUDIO",
         volunteer_motivation: "",
         why_asesor: "",
-        programs_university: "NINGUNO",
-        how_did_you_find_us: "FACEBOOK",
+        programs_university: "Ninguno",
+        how_did_you_find_us: "Facebook",
 
         // Respuestas dinámicas
         responses: [],
