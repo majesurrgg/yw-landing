@@ -4,7 +4,7 @@ const API_URL_PRODUCTION='https://yachaywasiback.shop/api';
 
 
 const api = axios.create({
-  baseURL: API_URL_LOCAL,
+  baseURL: API_URL_PRODUCTION,
   headers: {
     "Content-Type": "application/json",
   },
