@@ -1,7 +1,7 @@
 // FormSubmitSection.jsx
 "use client"
 
-export default function FormSubmitSection({ formData, handleInputChange, loading }) {
+export default function FormSubmitSection({ formData, onFieldChange, loading }) {
   return (
     <section className="mb-8">
       <h3 className="text-lg font-semibold mb-4">Términos y condiciones</h3>
@@ -11,7 +11,7 @@ export default function FormSubmitSection({ formData, handleInputChange, loading
           <input
             type="checkbox"
             checked={formData.acceptTerms}
-            onChange={(e) => handleInputChange("acceptTerms", e.target.checked)}
+            onChange={(e) => onFieldChange("acceptTerms", e.target.checked)}
             className="mt-1"
             required
           />
@@ -26,7 +26,7 @@ export default function FormSubmitSection({ formData, handleInputChange, loading
           <input
             type="checkbox"
             checked={formData.acceptDataPolicy}
-            onChange={(e) => handleInputChange("acceptDataPolicy", e.target.checked)}
+            onChange={(e) => onFieldChange("acceptDataPolicy", e.target.checked)}
             className="mt-1"
             required
           />

@@ -1,7 +1,9 @@
 import { getAreaById, listAreasAsesories, listAreasStaff } from "../services/areaService";
 import AreaSection from "../components/AreaSection";
 import { useParams, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import HeroSection from '../components/HeroSection';
+import FilterButtons from '../components/FilterButtons';
 
 // componente modal
 const SubAreaModal = ({ area, onClose, isLoading }) => {
@@ -67,6 +69,7 @@ export default function VolunteerPageInfo() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedArea, setSelectedArea] = useState(null); // para guardar los datos del area clickeada (incl. sub-areas)
   const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const mainContentRef = useRef(null);
 
 
 
@@ -90,10 +93,10 @@ export default function VolunteerPageInfo() {
     getData();
   }, []);
 
-  const styles = {
-    staff: { color: "#d32f2f", background: "white" },
-    asesory: { color: "#444", background: "#f4f7fb" },
+  const handleScrollToContent = () => {
+    mainContentRef.current?.scrollIntoView({ begavior: 'smooth' });
   };
+
 
   // abre modal
   const handleAreaClick = async (areaId) => {
@@ -112,61 +115,30 @@ export default function VolunteerPageInfo() {
     }
   };
 
+  const styles = {
+    staff: { color: "#d32f2f", background: "white" },
+    asesory: { color: "#444", background: "#f4f7fb" },
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div style={{ width: "100%", height: 350, background: "#b3c6e0", position: "relative", display: "flex", alignItems: "center", overflow: "hidden", }}>
-        <img
-          src="/assets/volunteer.png"
-          alt="Voluntariado"
-          style={{
-            objectFit: "cover",
-            objectPosition: "center 37%",
-            width: "100%",
-            height: "100%",
-          }}
-        />
-        <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "60rem", maxWidth: "90%", background: "rgba(255, 255, 255, 0.52)", padding: "10px 28px", borderRadius: 8, boxShadow: "0 2px 6px rgba(0,0,0,0.1)", textAlign: "center" }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: "#234", margin: 0 }}>
-            Voluntariado
-          </h1>
-        </div>
-      </div>
 
-      <main className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md -mt-16">
-        <h2 style={{ fontSize: 19, fontWeight: 700, color: "#1976d2", marginBottom: 8 }}>
-          ¡Haz Voluntariado en Yachay Wasi!
-        </h2>
+      <HeroSection onScrollButtonClick={handleScrollToContent} />
 
-        <p style={{ color: "#345", marginBottom: 16 }}>
-          En Yachay Wasi, trabajamos para llevar educación de calidad a niños y adolescentes de comunidades vulnerables.<br />
-          Buscamos voluntarios apasionados que deseen poner su conocimiento al servicio de nuestra misión.
-        </p>
-
-        <div style={{ marginBottom: 20 }}>
-          <label htmlFor="filter" style={{ marginRight: 10, fontWeight: 600 }}>Filtrar por tipo:</label>
-          <select
-            id="filter"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 6,
-              border: "1px solid #b3c6e0",
-              fontWeight: 600,
-              background: "#eaf1fb"
-            }}
-          >
-            <option value="all">Todos</option>
-            <option value="staff">Staff</option>
-            <option value="asesory">Asesores</option>
-          </select>
+      <main ref={mainContentRef} className="max-w-5xl mx-auto p-6 md:p-8">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-blue-800 mb-2">
+            ¡Haz Voluntariado en Yachay Wasi!
+          </h2>
+          <p className="text-gray-600 max-w-3xl mx-auto">
+            En Yachay Wasi, trabajamos para llevar educación de calidad a niños y adolescentes de comunidades vulnerables. Buscamos voluntarios apasionados que deseen poner su conocimiento al servicio de nuestra misión.
+          </p>
         </div>
 
-        <div className="flex flex-col gap-7">
-          {/* seccion de staff que abre el modal */}
+        <FilterButtons currentFilter={filter} onFilterChange={setFilter} />
+
+        <div className="flex flex-col gap-8">
           {(filter === "all" || filter === "staff") && (
-            // conectamos onClick a las tarjetas de AreaSection
             <AreaSection
               title="Staff"
               color={styles.staff.color}
@@ -174,11 +146,10 @@ export default function VolunteerPageInfo() {
               areas={areaStaff}
               loading={loading}
               emptyMsg="No hay áreas de staff activas."
-              itemType="staff" // <-- Decimos que estos items son de tipo 'staff'
-              onAreaClick={handleAreaClick} // <-- pasamos la función como prop
+              itemType="staff"
+              onAreaClick={handleAreaClick}
             />
           )}
-          {/* seccion de asesores con links directos */}
           {(filter === "all" || filter === "asesory") && (
             <AreaSection
               title="Asesores"
@@ -187,7 +158,7 @@ export default function VolunteerPageInfo() {
               areas={areaAsesory}
               loading={loading}
               emptyMsg="No hay áreas de asesores activas."
-              itemType="asesories" // <-- decimos que son de tipo 'asesories'
+              itemType="asesories"
             />
           )}
         </div>
@@ -197,9 +168,9 @@ export default function VolunteerPageInfo() {
         <SubAreaModal
           area={selectedArea}
           isLoading={isLoadingModal}
-          onClose={() => setIsModalOpen(false)} />
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
-
     </div>
   );
 }

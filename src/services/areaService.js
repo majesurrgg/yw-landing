@@ -11,31 +11,19 @@ export const listAreasAsesories = async () => {
 /*
 * Obtiene todas las áreas de Staff
 */
+/**
+ * obtiene todas subareas de atributo asesories en area staff
+ */
+export const listAreasStaffAsesories = async () => {
+  const response = await api.get("/subareas/staff/type/asesories");
+  return response.data;
+}
+
+/*
+* Obtiene todas las áreas de Staff
+*/
 export const listAreasStaff = async () => {
   const response = await api.get("/areas/staff");
-  return response.data;
-};
-
-/**
- * Obtiene los detalles de un Área de Staff por su ID.
- * La usamos para obtener el nombre del área principal en el formulario.
- * @param {string} areaId - El ID del área.
- * @returns {Promise<object>}
- */
-export const getAreaById = async (areaId) => {
-  const response = await api.get(`/areas/${areaId}`);
-  return response.data;
-};
-
-
-/**
- * Obtiene los detalles de una SubÁrea específica por su ID.
- * La usamos para obtener el nombre del puesto al que se postula.
- * @param {string} subAreaId - El ID de la subárea.
- * @returns {Promise<object>}
- */
-export const getSubAreaById = async (subAreaId) => {
-  const response = await api.get(`/subareas/${subAreaId}`);
   return response.data;
 };
 
@@ -48,3 +36,20 @@ export const getQuestionsBySubAreaId = async (subAreaId) => {
   const response = await api.get(`/areas/subareas/${subAreaId}/questions`);
   return response.data;
 };
+
+/**
+ * Obtiene un area por su ID, incluyendo sub subareas
+ */
+export const getAreaById = async(areaId) => {
+  const response = await api.get(`/areas/${areaId}`);
+  return response.data;
+}
+
+
+/**
+ * obtiene sub area por id 
+ */
+export const getSubAreaById = async(subareaId) => {
+  const response = await api.get(`/subareas/${subareaId}`);
+  return response.data;
+}

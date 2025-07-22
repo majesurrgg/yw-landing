@@ -13,6 +13,7 @@ import DonatePage from "../pages/DonatePage";
 import DonationForm from "../pages/DonationForm";
 import SuccessPage from "../pages/SuccessPage";
 import CancelPage from "../pages/CancelPage";
+import ThankYouPage from "../pages/ThankYouPage";
 function AppRoutes() {
   return (
     <Routes>
@@ -28,6 +29,7 @@ function AppRoutes() {
         <Route path="/donation" element={<DonatePage />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cancel" element={<CancelPage />} />
+        <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path='/volunteering' element={<Volunteering />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+
 import { useState, useEffect, useRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -11,6 +11,7 @@ import {
 import Lottie from 'lottie-react'
 import treeAnimation from '../assets/animations/animacion-arbol.json';
 import '../styles/Home.css'
+
 
 const collageData = [
   { image: '/assets/images/header/1.png' },
@@ -356,6 +357,7 @@ const Home = () => {
         <div className="logo-container">
           <img src="/assets/images/logo_color.png" alt="Yachay Wasi Logo" />
         </div>
+        
       </header>
 
       <div className="collage-text-bottom">
@@ -420,6 +422,7 @@ const Home = () => {
           <img src="/assets/animations/wave-bottom.svg" alt="" />
         </div>
       </section>
+
       <section className="hero-section">
         <div className="content-grid">
           <div className="video-container fade-in">
@@ -517,6 +520,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+
 
       <section className="achievements-section" ref={achievementsRef}>
         <h2 className="section-title">CONOCE SOBRE NUESTROS LOGROS COMO ORGANIZACIÓN</h2>

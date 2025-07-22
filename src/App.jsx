@@ -1,3 +1,4 @@
+import { ToastContainer } from 'react-toastify';
 import AppRoutes from './router/index'
 import { useState, useEffect } from 'react';
 
@@ -30,6 +31,9 @@ export default function App(){
     );
   }
   return(
-      <AppRoutes/>
+    <>
+    <AppRoutes/>
+    <ToastContainer />
+    </>
   )
 }
